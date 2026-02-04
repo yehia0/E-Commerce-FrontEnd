@@ -1,0 +1,128 @@
+<aside class="filters">
+  <!-- Categories Section -->
+  <div class="filter-section">
+    <div class="filter-title">Categories</div>
+
+    @if (loading) {
+      <div class="loading-text">Loading categories...</div>
+    }
+
+    @if (!loading && categories.length === 0) {
+      <div class="no-categories">No categories available</div>
+    }
+
+    <!-- Category List with Subcategories -->
+    @for (category of categories; track category._id) {
+      <div class="category-group">
+        <!-- Main Category -->
+        <div class="filter-option category-option">
+          <input
+            type="checkbox"
+            [id]="'cat-' + category._id"
+            [checked]="isCategorySelected(category._id)"
+            (change)="toggleCategory(category._id)"
+          />
+          <label [for]="'cat-' + category._id">
+            {{ category.name }}
+            @if (getSubcategoriesCount(category) > 0) {
+              <span class="sub-count">({{ getSubcategoriesCount(category) }})</span>
+            }
+          </label>
+
+          <!-- Expand/Collapse Button -->
+          @if (category.subcategories && category.subcategories.length > 0) {
+            <button
+              type="button"
+              class="expand-btn"
+              (click)="toggleCategoryExpansion(category._id)"
+              [class.expanded]="isCategoryExpanded(category._id)"
+            >
+              {{ isCategoryExpanded(category._id) ? '−' : '+' }}
+            </button>
+          }
+        </div>
+
+        <!-- Subcategories (Collapsible) -->
+        @if (category.subcategories && category.subcategories.length > 0 && isCategoryExpanded(category._id)) {
+          <div class="subcategories">
+            @for (subcategory of category.subcategories; track subcategory._id) {
+              <div class="filter-option subcategory-option">
+                <input
+                  type="checkbox"
+                  [id]="'subcat-' + subcategory._id"
+                  [checked]="isSubcategorySelected(subcategory._id)"
+                  (change)="toggleSubcategory(subcategory._id)"
+                />
+                <label [for]="'subcat-' + subcategory._id">
+                  {{ subcategory.name }}
+                </label>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Price Range Section -->
+  <div class="filter-section">
+    <div class="filter-title">Price Range</div>
+    <div class="price-range">
+      <input
+        type="number"
+        class="price-input"
+        placeholder="Min"
+        [(ngModel)]="minPrice"
+        (change)="onPriceChange()"
+        min="0"
+      />
+      <span>-</span>
+      <input
+        type="number"
+        class="price-input"
+        placeholder="Max"
+        [(ngModel)]="maxPrice"
+        (change)="onPriceChange()"
+        min="0"
+      />
+    </div>
+    <div class="price-display">{{ minPrice }} EGP - {{ maxPrice }} EGP</div>
+  </div>
+
+  <!-- Size Section -->
+  <div class="filter-section">
+    <div class="filter-title">Size</div>
+    @for (size of sizeOptions; track size) {
+      <div class="filter-option">
+        <input
+          type="checkbox"
+          [id]="'size-' + size"
+          [checked]="isSizeSelected(size)"
+          (change)="toggleSize(size)"
+        />
+        <label [for]="'size-' + size">{{ size }}</label>
+      </div>
+    }
+  </div>
+
+  <!-- Color Section -->
+  <div class="filter-section">
+    <div class="filter-title">Color</div>
+    @for (color of colorOptions; track color) {
+      <div class="filter-option">
+        <input
+          type="checkbox"
+          [id]="'color-' + color"
+          [checked]="isColorSelected(color)"
+          (change)="toggleColor(color)"
+        />
+        <label [for]="'color-' + color">{{ color }}</label>
+      </div>
+    }
+  </div>
+
+  <!-- Clear Filters Button -->
+  <button class="clear-filters" (click)="clearAllFilters()">
+    Clear All Filters
+  </button>
+</aside>

@@ -1,0 +1,35 @@
+<div class="product-images">
+  <div class="main-image">
+    <button class="nav-btn prev" (click)="prevImage()" *ngIf="images.length > 1">‹</button>
+
+    <div class="image-display">
+      <!-- ✅ عرض الصورة الفعلية -->
+      @if (selectedImage) {
+        <img
+          [src]="getImageUrl(selectedImage)"
+          [alt]="productName"
+          class="main-product-image"
+        />
+      } @else {
+        <span class="image-placeholder">🧥</span>
+      }
+    </div>
+
+    <button class="nav-btn next" (click)="nextImage()" *ngIf="images.length > 1">›</button>
+  </div>
+
+  <div class="thumbnail-images" *ngIf="images.length > 1">
+    <div
+      *ngFor="let image of images; let i = index"
+      class="thumbnail"
+      [class.active]="i === selectedIndex"
+      (click)="selectImage(image, i)">
+      <!-- ✅ عرض الصور المصغرة -->
+      <img
+        [src]="getImageUrl(image)"
+        [alt]="productName + ' - Image ' + (i + 1)"
+        class="thumbnail-image"
+      />
+    </div>
+  </div>
+</div>

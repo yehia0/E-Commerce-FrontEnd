@@ -1,0 +1,105 @@
+<div class="checkout-header">
+  <div class="container">
+    <div class="checkout-steps">
+      <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+        <span class="step-number">1</span>
+        <span class="step-label">Shipping</span>
+      </div>
+      <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+        <span class="step-number">2</span>
+        <span class="step-label">Payment</span>
+      </div>
+      <div class="step" [class.active]="currentStep >= 3">
+        <span class="step-number">3</span>
+        <span class="step-label">Review</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="checkout-container">
+    <div class="checkout-form">
+      <!-- Step 1: Shipping -->
+      <div *ngIf="currentStep === 1">
+        <app-shipping-form
+          (shippingSubmit)="onShippingSubmit($event)">
+        </app-shipping-form>
+      </div>
+
+      <!-- Step 2: Payment -->
+      <div *ngIf="currentStep === 2">
+        <app-payment-method
+          [selectedMethod]="selectedPaymentMethod"
+          (paymentSelect)="onPaymentSelect($event)"
+          (notesChange)="onOrderNotesChange($event)">
+        </app-payment-method>
+      </div>
+
+      <!-- Step 3: Review -->
+      <div *ngIf="currentStep === 3">
+        <app-order-review
+          [shippingAddress]="shippingAddress"
+          [paymentMethod]="selectedPaymentMethod"
+          [orderNotes]="orderNotes"
+          [cartItems]="cartItems"
+          [subtotal]="subtotal"
+          [shipping]="shipping"
+          [discount]="discount"
+          [total]="total"
+          (placeOrder)="onPlaceOrder()"
+          (editShipping)="goToStep(1)"
+          (editPayment)="goToStep(2)">
+        </app-order-review>
+      </div>
+    </div>
+
+    <div class="order-sidebar">
+      <div class="order-summary">
+        <h2 class="summary-title">Order Summary</h2>
+
+        <div class="order-items">
+          <div *ngFor="let item of cartItems" class="order-item">
+            <div class="item-image">
+              <img
+                [src]="getProductImage(item)"
+                [alt]="getProductName(item)"
+                (error)="$event.target.src='assets/images/placeholder.png'">
+            </div>
+            <div class="item-details">
+              <div class="item-name">{{ getProductName(item) }}</div>
+              <div class="item-meta">
+                <span *ngIf="item.size">{{ item.size }}</span>
+                <span *ngIf="item.size && item.color"> | </span>
+                <span *ngIf="item.color">{{ item.color }}</span>
+                <span *ngIf="item.size || item.color"> | </span>
+                <span>Qty: {{ item.quantity }}</span>
+              </div>
+            </div>
+            <div class="item-price">{{ getProductPrice(item) * item.quantity | number:'1.2-2' }} EGP</div>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <span>Subtotal</span>
+          <span>{{ subtotal }} EGP</span>
+        </div>
+
+        <div class="summary-item">
+          <span>Shipping</span>
+          <span>{{ shipping === 0 ? 'Free' : shipping + ' EGP' }}</span>
+        </div>
+
+        <div class="summary-item" *ngIf="discount > 0">
+          <span>Discount</span>
+          <span class="discount">-{{ discount }} EGP</span>
+        </div>
+
+        <div class="summary-item total">
+          <span>Total</span>
+          <span>{{ total }} EGP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

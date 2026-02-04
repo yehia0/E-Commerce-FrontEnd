@@ -1,0 +1,12 @@
+<!-- product-sort.html -->
+<select
+  class="sort-dropdown"
+  [value]="sortBy"
+  (change)="onSortChange($event)">
+  <option
+    *ngFor="let option of sortOptions"
+    [value]="option.value"
+    [selected]="sortBy === option.value">
+    {{ option.label }}
+  </option>
+</select>

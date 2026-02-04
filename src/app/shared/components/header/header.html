@@ -1,0 +1,35 @@
+<!-- src/app/shared/components/header/header.html - FIXED -->
+<div class="top-bar">
+  Free Shipping on Orders Over 500 EGP | Cash on Delivery Available
+</div>
+
+<header>
+  <nav>
+    <a routerLink="/" class="logo">Urban Style</a>
+
+    <ul class="nav-links">
+      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+      <li><a routerLink="/men" routerLinkActive="active">Men</a></li>
+      <li><a routerLink="/women" routerLinkActive="active">Women</a></li>
+      <li><a routerLink="/#new">New Arrivals</a></li>
+    </ul>
+
+    <div class="nav-icons">
+
+      @if (currentUser$ | async; as user) {
+        <a routerLink="/account" class="icon-btn">
+          👤 {{ getUserDisplayName(user) }}
+        </a>
+      } @else {
+        <a routerLink="/login" class="icon-btn">👤 Login</a>
+      }
+
+      <a routerLink="/cart" class="icon-btn cart-icon">
+        🛒 Cart
+        @if (cartService.cartItemsCount() > 0) {
+          <span class="cart-badge">{{ cartService.cartItemsCount() }}</span>
+        }
+      </a>
+    </div>
+  </nav>
+</header>

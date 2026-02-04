@@ -1,0 +1,144 @@
+<div class="breadcrumb">
+  <a routerLink="/">Home</a> /
+  <a routerLink="/products/men">Products</a> /
+  <span>{{ product?.name }}</span>
+</div>
+
+<div class="container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading product...</p>
+  </div>
+
+  <!-- Product Details -->
+  <div class="product-detail" *ngIf="product && !loading">
+    <app-product-images
+      [images]="product.images"
+      [productName]="product.name">
+    </app-product-images>
+
+    <app-product-info
+      [product]="product"
+      [selectedSize]="selectedSize"
+      [selectedColor]="selectedColor"
+      [quantity]="quantity"
+      (sizeChange)="onSizeChange($event)"
+      (colorChange)="onColorChange($event)"
+      (quantityChange)="onQuantityChange($event)"
+      (addToCart)="addToCart()"
+      (addToWishlist)="addToWishlist()">
+    </app-product-info>
+  </div>
+
+  <!-- Tabs Section -->
+  <div class="tabs" *ngIf="product && !loading">
+    <div class="tab-buttons">
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'description'"
+        (click)="setActiveTab('description')">
+        Description
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'reviews'"
+        (click)="setActiveTab('reviews')">
+        Reviews ({{ reviews.length }})
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'shipping'"
+        (click)="setActiveTab('shipping')">
+        Shipping Info
+      </button>
+    </div>
+
+    <div class="tab-content">
+      <!-- Description Tab -->
+      <div *ngIf="activeTab === 'description'" class="tab-panel">
+        <h3>Product Description</h3>
+        <p>{{ product?.description }}</p>
+        <br>
+        <h4>Features:</h4>
+        <ul>
+          <li *ngFor="let feature of product?.features">{{ feature }}</li>
+        </ul>
+      </div>
+
+      <!-- Reviews Tab -->
+      <div *ngIf="activeTab === 'reviews'" class="tab-panel">
+        <app-product-reviews [reviews]="reviews"></app-product-reviews>
+      </div>
+
+      <!-- Shipping Tab -->
+      <div *ngIf="activeTab === 'shipping'" class="tab-panel">
+        <h3>Shipping Information</h3>
+        <p><strong>Delivery Time:</strong> 3-5 business days</p>
+        <p><strong>Shipping Cost:</strong> Free for orders over 500 EGP</p>
+        <p><strong>Payment:</strong> Cash on Delivery available</p>
+        <br>
+        <h4>Return Policy:</h4>
+        <p>We offer a 14-day return policy. Items must be in original condition with tags attached.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  <div class="related-products" *ngIf="!loading">
+
+    <!-- Loading State -->
+    <div *ngIf="loadingRelated" class="loading-state">
+      <div class="spinner-small"></div>
+      <p>Loading related products...</p>
+    </div>
+
+    <!-- Products Grid -->
+    <div *ngIf="!loadingRelated && relatedProducts.length > 0">
+      <h2 class="section-title">You May Also Like</h2>
+      <div class="product-grid">
+        <div
+          *ngFor="let relatedProduct of relatedProducts"
+          class="product-card"
+          (click)="goToProduct(relatedProduct._id)">
+
+          <!-- ✅ Product Image -->
+          <div class="product-image">
+            <img
+              [src]="getProductImage(relatedProduct)"
+              [alt]="relatedProduct.name"
+              loading="lazy"
+              onerror="this.src='assets/images/placeholder.png'"
+            />
+          </div>
+
+          <!-- ✅ Product Info -->
+          <div class="product-card-info">
+            <div class="product-card-name">{{ relatedProduct.name }}</div>
+
+            <!-- Rating -->
+            <div class="product-card-rating" *ngIf="relatedProduct.rating">
+              <span class="stars">{{ getStars(relatedProduct.rating) }}</span>
+              <span class="rating-count">({{ relatedProduct.reviewCount || 0 }})</span>
+            </div>
+
+            <!-- Price -->
+            <div class="product-card-price">
+              <span class="current-price">{{ relatedProduct.price }} EGP</span>
+
+              <!-- Show discount if available -->
+              <span class="old-price" *ngIf="relatedProduct.discount && relatedProduct.discount > 0">
+                {{ relatedProduct.price + relatedProduct.discount }} EGP
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loadingRelated && relatedProducts.length === 0" class="empty-state">
+      <p>No related products found</p>
+    </div>
+  </div>
+</div>

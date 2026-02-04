@@ -1,0 +1,341 @@
+<div class="categories-page">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading categories...</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div *ngFor="let stat of stats" [class]="'stat-card stat-' + stat.color">
+      <div class="stat-content">
+        <div class="stat-info">
+          <p class="stat-label">{{ stat.label }}</p>
+          <p class="stat-value">{{ stat.value }}</p>
+        </div>
+        <div class="stat-icon">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Card -->
+  <div class="filters-card">
+    <div class="filters-wrapper">
+      <div class="search-box">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search categories by name, slug, or description..."
+          class="search-input"
+        />
+        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+
+      <select [(ngModel)]="statusFilter" class="filter-select">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+
+      <select [(ngModel)]="genderFilter" class="filter-select">
+        <option value="all">All Gender</option>
+        <option value="men">Men</option>
+        <option value="women">Women</option>
+        <option value="unisex">Unisex</option>
+      </select>
+
+      <button (click)="openCreateModal()" class="btn-add">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Category
+      </button>
+    </div>
+  </div>
+
+  <!-- Categories Tree View -->
+  <div class="table-card">
+    <div class="categories-tree">
+      <div *ngFor="let category of filteredCategories" class="category-item">
+        <!-- Category Header -->
+        <div class="category-header">
+          <div class="category-main">
+            <button
+              class="expand-btn"
+              (click)="toggleCategory(category)"
+              *ngIf="getCategorySubcategories(category).length > 0"
+            >
+              <svg class="icon" [class.expanded]="category.expanded" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+            <div class="expand-placeholder" *ngIf="getCategorySubcategories(category).length === 0"></div>
+
+            <div class="category-avatar">
+              {{ category.name.charAt(0).toUpperCase() }}
+            </div>
+
+            <div class="category-info">
+              <div class="category-name">{{ category.name }}</div>
+              <div class="category-meta">
+                <span class="slug-badge">{{ category.slug }}</span>
+                <span class="gender-badge">{{ category.gender || 'all' }}</span>
+                <span class="products-badge">{{ category.productCount || 0 }} products</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="category-actions">
+            <button
+              (click)="toggleCategoryStatus(category)"
+              [class]="'status-badge status-' + (category.isActive ? 'active' : 'inactive')">
+              {{ getStatusText(category.isActive) }}
+            </button>
+
+            <button
+              (click)="openAddSubcategoryModal(category)"
+              class="btn-action btn-add-sub"
+              title="Add Subcategory">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
+
+            <button
+              (click)="openEditModal(category)"
+              class="btn-action btn-edit"
+              title="Edit Category">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </button>
+
+            <button
+              (click)="deleteCategory(category)"
+              class="btn-action btn-delete"
+              title="Delete Category">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Subcategories List (Expandable) -->
+        <div class="subcategories-list" *ngIf="category.expanded && getCategorySubcategories(category).length > 0">
+          <div *ngFor="let subcategory of getCategorySubcategories(category)" class="subcategory-item">
+            <div class="subcategory-icon">↳</div>
+            <div class="subcategory-avatar">
+              {{ subcategory.name.charAt(0).toUpperCase() }}
+            </div>
+            <div class="subcategory-info">
+              <span class="subcategory-name">{{ subcategory.name }}</span>
+              <span class="subcategory-slug">{{ subcategory.slug }}</span>
+            </div>
+            <div class="subcategory-actions">
+              <button
+                (click)="toggleSubcategoryStatus(subcategory)"
+                [class]="'status-badge-small status-' + (subcategory.isActive ? 'active' : 'inactive')">
+                {{ getStatusText(subcategory.isActive) }}
+              </button>
+              <button
+                (click)="openEditSubcategoryModal(subcategory)"
+                class="btn-action-small btn-edit"
+                title="Edit Subcategory">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button
+                (click)="deleteSubcategory(subcategory)"
+                class="btn-action-small btn-delete"
+                title="Delete Subcategory">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredCategories.length === 0" class="empty-state">
+      <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+      </svg>
+      <h3 class="empty-title">No categories found</h3>
+      <p class="empty-text">Try adjusting your search or filter criteria</p>
+    </div>
+  </div>
+
+  <!-- Category Modal -->
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingCategory?._id || editingCategory?.id ? 'Edit Category' : 'Create New Category' }}</h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+
+      <form (submit)="saveCategory(); $event.preventDefault()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Category Name *</label>
+            <input
+              type="text"
+              [(ngModel)]="editingCategory!.name"
+              name="name"
+              required
+              placeholder="e.g., T-Shirts, Jackets, Accessories..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label>URL Slug *</label>
+            <input
+              type="text"
+              [(ngModel)]="editingCategory!.slug"
+              name="slug"
+              required
+              placeholder="e.g., t-shirts (auto-generated if left empty)"
+            />
+            <small style="color: #6b7280; font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+              This will be used in the URL. Leave empty to auto-generate from name.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea
+              [(ngModel)]="editingCategory!.description"
+              name="description"
+              placeholder="Brief description of this category..."
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Gender</label>
+              <select [(ngModel)]="editingCategory!.gender" name="gender">
+                <option value="all">All</option>
+                <option value="men">Men</option>
+                <option value="women">Women</option>
+                <option value="unisex">Unisex</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; margin-top: 1.875rem;">
+              <label style="margin-bottom: 0; display: flex; align-items: center; cursor: pointer;">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="editingCategory!.isActive"
+                  name="isActive"
+                  style="width: 1.25rem; height: 1.25rem; cursor: pointer;"
+                />
+                <span style="margin-left: 0.5rem;">Active Category</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="closeModal()" class="btn-cancel">
+            Cancel
+          </button>
+          <button type="submit" class="btn-save">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ editingCategory?._id || editingCategory?.id ? 'Update Category' : 'Create Category' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Subcategory Modal -->
+  <div *ngIf="showSubcategoryModal" class="modal-overlay" (click)="closeSubcategoryModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingSubcategory?._id ? 'Edit Subcategory' : 'Add Subcategory' }}</h2>
+        <button class="close-btn" (click)="closeSubcategoryModal()">&times;</button>
+      </div>
+
+      <form (submit)="saveSubcategory(); $event.preventDefault()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Parent Category</label>
+            <input
+              type="text"
+              [value]="selectedCategory?.name"
+              disabled
+              style="background: #f3f4f6; cursor: not-allowed;"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Subcategory Name *</label>
+            <input
+              type="text"
+              [(ngModel)]="editingSubcategory!.name"
+              name="name"
+              required
+              placeholder="e.g., Sneakers, Formal Shoes, Boots..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label>URL Slug *</label>
+            <input
+              type="text"
+              [(ngModel)]="editingSubcategory!.slug"
+              name="slug"
+              required
+              placeholder="e.g., sneakers (auto-generated if left empty)"
+            />
+            <small style="color: #6b7280; font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+              Leave empty to auto-generate from name.
+            </small>
+          </div>
+
+          <div class="form-group" style="display: flex; align-items: center;">
+            <label style="margin-bottom: 0; display: flex; align-items: center; cursor: pointer;">
+              <input
+                type="checkbox"
+                [(ngModel)]="editingSubcategory!.isActive"
+                name="isActive"
+                style="width: 1.25rem; height: 1.25rem; cursor: pointer;"
+              />
+              <span style="margin-left: 0.5rem;">Active Subcategory</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="closeSubcategoryModal()" class="btn-cancel">
+            Cancel
+          </button>
+          <button type="submit" class="btn-save">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ editingSubcategory?._id ? 'Update Subcategory' : 'Create Subcategory' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<app-confirmation-modal
+  [config]="confirmConfig"
+  [isVisible]="showConfirmModal"
+  (confirmed)="onModalConfirm()"
+  (cancelled)="onModalCancel()">
+</app-confirmation-modal>

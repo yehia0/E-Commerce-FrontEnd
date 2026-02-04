@@ -1,0 +1,54 @@
+<!-- src/app/features/account/components/wishlist/wishlist.html -->
+
+<h2 class="section-title">My Wishlist</h2>
+
+<div *ngIf="isLoading" class="loading">Loading...</div>
+
+<div *ngIf="!isLoading && wishlistItems.length > 0" class="wishlist-grid">
+  <div *ngFor="let item of wishlistItems" class="wishlist-card">
+    <div class="product-image" (click)="goToProduct(item.product._id)">
+      <img
+        [src]="getProductImage(item.product.images)"
+        [alt]="item.product.name"
+        onerror="this.src='/assets/images/placeholder.png'">
+    </div>
+    <div class="product-info">
+      <h3 class="product-name" (click)="goToProduct(item.product._id)">
+        {{ item.product.name }}
+      </h3>
+      <p class="product-price">{{ item.product.price }} EGP</p>
+      <div class="product-rating" *ngIf="item.product.rating && item.product.rating > 0">
+        ⭐ {{ item.product.rating }} ({{ item.product.reviewCount || 0 }} reviews)
+      </div>
+      <div class="stock-status" [ngClass]="getStockClass(item.product.stock)">
+        {{ getStockStatus(item.product.stock) }}
+      </div>
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="item.product.stock === 0"
+        (click)="moveToCart(item)">
+        Move to Cart
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="removeFromWishlist(item._id)">
+        Remove
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!isLoading && wishlistItems.length === 0" class="empty-wishlist">
+  <div class="empty-icon">❤️</div>
+  <h3>Your wishlist is empty</h3>
+  <p>Add items you love to your wishlist!</p>
+  <button type="button" class="btn btn-primary" (click)="continueShopping()">
+    Start Shopping
+  </button>
+</div>
+<!-- Remove Confirmation Modal -->
+<app-confirmation-modal
+  [config]="removeConfirmationConfig"
+  [isVisible]="showRemoveConfirmation"
+  (confirmed)="onConfirmRemove()"
+  (cancelled)="onCancelRemove()">
+</app-confirmation-modal>

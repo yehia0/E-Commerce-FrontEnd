@@ -1,0 +1,49 @@
+<div class="admin-sidebar">
+  <!-- Logo Section -->
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-icon">🛍️</span>
+      <span class="logo-text">Urban Style</span>
+    </div>
+    <p class="logo-subtitle">Admin Panel</p>
+  </div>
+
+  <!-- User Info -->
+  <div class="sidebar-user" *ngIf="currentUser$ | async as user">
+    <div class="user-avatar-large">
+      {{ getUserInitial(user) }}
+    </div>
+    <div class="user-info">
+      <p class="user-name">{{ getUserFullName(user) }}</p>
+      <p class="user-role">{{ user.role | titlecase }}</p>
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <p class="nav-section-title">MAIN MENU</p>
+      <a *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+    <button class="btn-back-to-site" routerLink="/">
+      <span>🏠</span> Back to Site
+    </button>
+    <button class="btn-logout" (click)="logout()">
+      <span>🚪</span> Logout
+    </button>
+  </div>
+</div>
+
+<app-confirmation-modal
+  [config]="confirmConfig"
+  [isVisible]="showConfirmModal"
+  (confirmed)="onModalConfirm()"
+  (cancelled)="onModalCancel()">
+</app-confirmation-modal>

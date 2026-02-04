@@ -1,0 +1,33 @@
+<div class="admin-layout" [class.sidebar-collapsed]="sidebarCollapsed">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar-container">
+    <app-admin-sidebar></app-admin-sidebar>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="admin-main">
+    <!-- Header -->
+    <header class="admin-header-container">
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <span class="hamburger-icon">☰</span>
+      </button>
+      <app-admin-header></app-admin-header>
+    </header>
+
+    <!-- Content -->
+    <main class="admin-content">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer -->
+    <footer class="admin-footer">
+      <p>&copy; 2024 Urban Style Admin Panel. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay"
+       *ngIf="sidebarCollapsed"
+       (click)="toggleSidebar()">
+  </div>
+</div>

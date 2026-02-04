@@ -1,0 +1,65 @@
+<!-- src/app/features/product-details/components/product-reviews/product-reviews.html -->
+
+<div class="reviews-container">
+
+  <!-- Reviews Summary -->
+  <div class="reviews-summary" *ngIf="reviews.length > 0">
+    <div class="average-rating">
+      <div class="rating-number">{{ getAverageRating().toFixed(1) }}</div>
+      <div class="stars-large">
+        <span class="stars">{{ getStars(getAverageRating()) }}</span>
+        <span class="empty-stars">{{ getEmptyStars(getAverageRating()) }}</span>
+      </div>
+      <div class="total-reviews">Based on {{ reviews.length }} {{ reviews.length === 1 ? 'review' : 'reviews' }}</div>
+    </div>
+  </div>
+
+  <!-- Reviews List -->
+  <div class="reviews-list">
+    <h3 class="reviews-title">Customer Reviews</h3>
+
+    <div *ngIf="reviews.length === 0" class="no-reviews">
+      <div class="empty-icon">📝</div>
+      <p>No reviews yet. Be the first to review this product!</p>
+    </div>
+
+    <div *ngFor="let review of reviews" class="review-item">
+      <div class="review-header">
+        <div class="reviewer-info">
+          <!-- ✅ Avatar with user initials -->
+          <div class="reviewer-avatar">
+            {{ getUserInitials(review) }}
+          </div>
+          <div>
+            <!-- ✅ User name -->
+            <div class="reviewer-name">{{ getUserName(review) }}</div>
+            <!-- ✅ Date with relative time -->
+            <div class="review-date">
+              {{ formatDate(review.createdAt) }}
+              <span class="relative-time" *ngIf="getRelativeTime(review.createdAt)">
+                • {{ getRelativeTime(review.createdAt) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rating stars -->
+        <div class="review-rating">
+          <span class="stars">{{ getStars(review.rating) }}</span>
+          <span class="empty-stars">{{ getEmptyStars(review.rating) }}</span>
+        </div>
+      </div>
+
+      <!-- Review comment -->
+      <div class="review-text">{{ review.comment }}</div>
+
+      <!-- Optional: Helpful button -->
+      <div class="review-actions" *ngIf="review.helpful">
+        <button class="helpful-btn">
+          👍 Helpful ({{ review.helpful }})
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

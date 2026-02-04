@@ -1,0 +1,96 @@
+<h2 class="section-title">Dashboard</h2>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+  <!-- Total Spent Card -->
+  <div class="stat-card highlight">
+    <div class="stat-value">{{ formatCurrency(stats.totalSpent) }} EGP</div>
+    <div class="stat-label">Total Spent</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.totalOrders }}</div>
+    <div class="stat-label">Total Orders</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.pendingOrders }}</div>
+    <div class="stat-label">Pending Orders</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.completedOrders }}</div>
+    <div class="stat-label">Completed Orders</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.wishlistItems }}</div>
+    <div class="stat-label">Wishlist Items</div>
+  </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="recent-orders-section">
+  <div class="section-header">
+    <h3 class="subsection-title">Recent Orders</h3>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading orders...</p>
+    </div>
+  }
+
+  @if (!isLoading && recentOrders.length > 0) {
+    <div class="orders-list">
+      @for (order of recentOrders; track order._id) {
+        <div class="order-card">
+          <div class="order-header">
+            <div class="order-id">Order #{{ order.orderNumber || order.orderId }}</div>
+            <div class="order-status" [ngClass]="getStatusClass(order.status)">
+              {{ getStatusLabel(order.status) }}
+            </div>
+          </div>
+
+          <div class="order-details">
+            <div class="order-info-item">
+              <div class="info-label">Date</div>
+              <div class="info-value">{{ formatDate(order.createdAt) }}</div>
+            </div>
+            <div class="order-info-item">
+              <div class="info-label">Total</div>
+              <div class="info-value">{{ formatCurrency(getOrderTotal(order)) }} EGP</div>
+            </div>
+            <div class="order-info-item">
+              <div class="info-label">Items</div>
+              <div class="info-value">{{ getOrderItemCount(order) }} items</div>
+            </div>
+          </div>
+
+          <div class="order-actions">
+            <button class="btn btn-primary" (click)="viewOrderDetails(order._id)">
+              View Details
+            </button>
+
+            @if (order.trackingNumber) {
+              <button class="btn btn-secondary" (click)="goToOrderTracking(order._id)">
+                Track Order
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!isLoading && recentOrders.length === 0) {
+    <div class="no-orders">
+      <div class="empty-icon">📦</div>
+      <p>No orders yet</p>
+      <button class="btn btn-primary" routerLink="/products">
+        Start Shopping
+      </button>
+    </div>
+  }
+</div>

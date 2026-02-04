@@ -1,0 +1,633 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+// ===================================
+// Search Section
+// ===================================
+.search-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 10; // Below header
+}
+
+.search-bar-wrapper {
+  position: relative;
+}
+
+.search-bar {
+  display: flex;
+  background: $white;
+  border-radius: 50px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+  position: relative;
+  z-index: 11;
+
+  &:focus-within {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  outline: none;
+
+  &::placeholder {
+    color: $text-lighter;
+  }
+}
+
+.search-button {
+  background-color: $primary-color;
+  border: none;
+  padding: 1rem 2rem;
+  color: $white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+}
+
+.mini-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+// ===================================
+// Search Suggestions Dropdown
+// ===================================
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: $white;
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 10;
+  margin-top: 5px;
+  animation: slideDown 0.3s ease;
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #e0e0e0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: lighten($primary-color, 45%);
+  }
+}
+
+.suggestion-image {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+}
+
+.suggestion-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestion-name {
+  font-weight: 600;
+  color: $text-color;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.2rem;
+}
+
+.suggestion-price {
+  color: $primary-color;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.suggestion-rating {
+  color: #ffc107;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.no-results {
+  padding: 1.5rem;
+  text-align: center;
+  color: $text-light;
+  font-size: 0.95rem;
+}
+
+// ===================================
+// Hero Section
+// ===================================
+.hero {
+  @include gradient-bg;
+  color: $white;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin-bottom: 3rem;
+
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.btn-primary {
+  background-color: $primary-color;
+  color: $white;
+  border: none;
+  padding: 1rem 2.5rem;
+  font-size: 1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.3s, background-color 0.3s;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+    transform: translateY(-2px);
+  }
+}
+
+// ===================================
+// Features Section
+// ===================================
+.features {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  @include card;
+  text-align: center;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    margin-bottom: 0.5rem;
+    color: $text-color;
+  }
+
+  p {
+    color: $text-light;
+    font-size: 0.9rem;
+  }
+}
+
+// ===================================
+// Product Sections
+// ===================================
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+
+  &.new-arrivals {
+    background-color: $white;
+    margin-top: 2rem;
+  }
+}
+
+.section-header {
+  @include flex-between;
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 2rem;
+    color: $text-color;
+    margin: 0;
+  }
+}
+
+.view-all {
+  color: $primary-color;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+
+  &:hover {
+    color: darken($primary-color, 10%);
+  }
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+// ===================================
+// Loading & Empty States
+// ===================================
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: $text-light;
+
+  .spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid lighten($primary-color, 30%);
+    border-top: 4px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.no-products {
+  text-align: center;
+  padding: 2rem;
+  color: $text-lighter;
+  font-size: 1.1rem;
+}
+
+// ===================================
+// Customer Reviews Section
+// ===================================
+.customer-reviews-section {
+  @include gradient-bg;
+  padding: 4rem 2rem;
+  margin-top: 3rem;
+  position: relative;
+  overflow: hidden;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+
+    h2 {
+      color: $white;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+    }
+  }
+
+  .reviews-carousel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: $white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    flex: 1;
+  }
+
+  .review-card {
+    @include card;
+    background: $white;
+    padding: 2rem;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+
+    &:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .review-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    @include gradient-bg;
+    color: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .review-stars {
+    color: #ffc107;
+    font-size: 20px;
+    margin-bottom: 1rem;
+    letter-spacing: 3px;
+  }
+
+  .review-comment {
+    color: $text-color;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex: 1;
+    min-height: 80px;
+  }
+
+  .review-footer {
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 2px solid #e0e0e0;
+  }
+
+  .reviewer-name {
+    font-weight: 600;
+    color: $text-color;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .product-name {
+    color: $text-light;
+    font-size: 0.9rem;
+  }
+
+  .dots-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 2rem;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+      transform: scale(1.2);
+    }
+
+    &.active {
+      background: $white;
+      width: 30px;
+      border-radius: 6px;
+    }
+  }
+
+  .loading {
+    text-align: center;
+    color: $white;
+    padding: 3rem;
+
+    .spinner {
+      border-color: rgba(255, 255, 255, 0.3);
+      border-top-color: $white;
+    }
+  }
+
+  .no-reviews {
+    text-align: center;
+    color: $white;
+    font-size: 1.1rem;
+    padding: 3rem;
+  }
+}
+
+// ===================================
+// Responsive Design
+// ===================================
+@include tablet {
+  .search-container {
+    padding: 0 1rem;
+  }
+
+  .search-input {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .search-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .search-suggestions {
+    max-height: 300px;
+  }
+
+  .suggestion-item {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .suggestion-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .suggestion-name {
+    font-size: 0.85rem;
+  }
+
+  .suggestion-price {
+    font-size: 0.8rem;
+  }
+
+  .hero {
+    padding: 3rem 1rem;
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
+
+  .features {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .customer-reviews-section {
+    padding: 3rem 1rem;
+
+    .section-header h2 {
+      font-size: 1.5rem;
+    }
+
+    .reviews-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+  }
+}
+
+@include mobile {
+  .search-suggestions {
+    max-height: 250px;
+    margin-top: 2px;
+  }
+
+  .suggestion-item {
+    padding: 0.5rem;
+    gap: 0.6rem;
+  }
+
+  .suggestion-image {
+    width: 35px;
+    height: 35px;
+  }
+
+  .customer-reviews-section {
+    padding: 2rem 1rem;
+
+    .reviews-carousel {
+      flex-direction: column;
+    }
+
+    .reviews-grid {
+      grid-template-columns: 1fr;
+      width: 100%;
+    }
+
+    .nav-btn {
+      display: none;
+    }
+
+    .review-card {
+      padding: 1.5rem;
+    }
+
+    .review-comment {
+      font-size: 0.9rem;
+      min-height: 60px;
+    }
+  }
+}

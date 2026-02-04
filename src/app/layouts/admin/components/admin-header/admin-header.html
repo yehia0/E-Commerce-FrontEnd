@@ -1,0 +1,91 @@
+<!-- src/app/layouts/admin/components/admin-header/admin-header.html - UPDATED -->
+<div class="admin-header">
+  <div class="header-left">
+    <h1 class="page-title">{{ pageTitle }}</h1>
+  </div>
+
+  <div class="header-right">
+    <!-- Search Bar -->
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search...">
+    </div>
+
+    <!-- Notifications -->
+    <!-- <div class="header-item notifications" (click)="toggleNotifications()">
+      <button class="icon-btn">
+        <span class="icon">🔔</span>
+        <span class="badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+      </button> -->
+
+      <!-- Notifications Dropdown -->
+      <!-- <div class="dropdown notifications-dropdown" *ngIf="showNotifications">
+        <div class="dropdown-header">
+          <h3>Notifications</h3>
+          <span class="badge-count">{{ notificationCount }} new</span>
+        </div>
+        <div class="notifications-list">
+          <div class="notification-item"
+               *ngFor="let notif of notifications"
+               [class.unread]="!notif.read"
+               (click)="markAsRead(notif)">
+            <span class="notif-icon">{{ notif.icon }}</span>
+            <div class="notif-content">
+              <p class="notif-message">{{ notif.message }}</p>
+              <span class="notif-time">{{ notif.time }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dropdown-footer">
+          <a routerLink="/admin/notifications">View All</a>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- User Menu -->
+    <div class="header-item user-menu" (click)="toggleUserMenu()">
+      <div class="user-info" *ngIf="currentUser$ | async as user">
+        <!-- ✅ FIXED: Using getUserInitials helper -->
+        <div class="user-avatar">
+          {{ getUserInitials(user) }}
+        </div>
+        <div class="user-details">
+          <!-- ✅ FIXED: Using getUserName helper -->
+          <span class="user-name">{{ getUserName(user) }}</span>
+          <span class="user-role">{{ user.role }}</span>
+        </div>
+        <span class="dropdown-arrow">▼</span>
+      </div>
+
+      <!-- User Dropdown -->
+      <div class="dropdown user-dropdown" *ngIf="showUserMenu">
+        <div class="dropdown-item" routerLink="/admin/profile">
+          <span class="item-icon">👤</span>
+          <span>Profile</span>
+        </div>
+        <div class="dropdown-item" routerLink="/admin/settings">
+          <span class="item-icon">⚙️</span>
+          <span>Settings</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item logout" (click)="logout()">
+          <span class="item-icon">🚪</span>
+          <span>Logout</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal for Logout -->
+  <app-confirmation-modal
+    [config]="{ title: 'Logout', message: 'Are you sure you want to logout?', confirmText: 'Logout', cancelText: 'Cancel', type: 'warning' }"
+    [isVisible]="showLogoutConfirm"
+    (confirmed)="onLogoutConfirm()"
+    (cancelled)="showLogoutConfirm = false">
+  </app-confirmation-modal>
+
+</div>
+
+
+

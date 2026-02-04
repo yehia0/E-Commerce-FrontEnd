@@ -1,0 +1,325 @@
+<!-- Order Details Page -->
+<div class="order-details-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Order Details</h1>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading order details...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error && !loading) {
+    <div class="error-container">
+      <p>{{ error }}</p>
+      <button class="btn btn-primary" (click)="goBack()">Go Back</button>
+    </div>
+  }
+
+  <!-- Order Details -->
+  @if (order && !loading) {
+    <div class="order-content">
+
+      <!-- Order Summary Card -->
+      <div class="order-summary-card">
+        <div class="card-header">
+          <div>
+            <h2>Order #{{ order.orderNumber || order.orderId }}</h2>
+            <p class="order-date">Placed on {{ formatDate(order.createdAt) }}</p>
+          </div>
+          <div class="order-status" [ngClass]="getStatusClass(order.status)">
+            {{ getStatusLabel(order.status) }}
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Total Amount</span>
+              <span class="value">{{ order.finalAmount || order.totalAmount }} EGP</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Payment Method</span>
+              <span class="value">Cash on Delivery</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Items</span>
+              <span class="value">{{ order.items.length }}</span>
+            </div>
+            @if (order.trackingNumber) {
+              <div class="info-item">
+                <span class="label">Tracking Number</span>
+                <span class="value">{{ order.trackingNumber }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Return Request Info -->
+          @if (order.returnRequest?.requested) {
+            <div class="return-info">
+              <h4>Return Request</h4>
+              <p><strong>Status:</strong> {{ order.returnRequest?.status | titlecase }}</p>
+              @if (order.returnRequest?.requestedAt) {
+                <p><strong>Requested:</strong> {{ formatDate(order.returnRequest!.requestedAt!) }}</p>
+              }
+              @if (order.returnRequest?.reason) {
+                <p><strong>Reason:</strong> {{ order.returnRequest?.reason }}</p>
+              }
+              @if (order.returnRequest?.adminResponse) {
+                <p><strong>Admin Response:</strong> {{ order.returnRequest?.adminResponse }}</p>
+              }
+            </div>
+          }
+
+          <!-- Return Eligibility Info -->
+          @if (canRequestReturn() && !order.returnRequest?.requested) {
+            <div class="return-eligible">
+              <p class="eligible-text">
+                ✅ This order is eligible for return
+                ({{ getDaysRemainingForReturn() }} days remaining)
+              </p>
+            </div>
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="card-actions">
+          @if (canCancelOrder()) {
+            <button class="btn btn-danger" (click)="cancelOrder()">
+              Cancel Order
+            </button>
+          }
+
+          @if (canRequestReturn()) {
+            <button class="btn btn-warning" (click)="openReturnModal()">
+              ↩️ Request Return
+            </button>
+          }
+
+          @if (order.trackingNumber) {
+            <button class="btn btn-secondary" (click)="trackOrder()">
+              Track Order
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="order-items-card">
+        <h3 class="card-title">Order Items</h3>
+
+        <div class="items-list">
+          @for (item of order.items; track item._id) {
+            <div class="order-item">
+              <img
+                [src]="getProductImage(item)"
+                [alt]="item.product.name || item.productName"
+                class="item-image"
+              />
+
+              <div class="item-details">
+                <h4 class="item-name">{{ item.product.name || item.productName }}</h4>
+
+                <div class="item-meta">
+                  @if (item.size) {
+                    <span>Size: {{ item.size }}</span>
+                  }
+                  @if (item.color) {
+                    <span>Color: {{ item.color }}</span>
+                  }
+                  <span>Qty: {{ item.quantity }}</span>
+                </div>
+
+                <div class="item-price">
+                  {{ item.price }} EGP × {{ item.quantity }} = {{ item.price * item.quantity }} EGP
+                </div>
+
+                <!-- Review Button (only if delivered) -->
+                @if (canReviewOrder()) {
+                  <button class="btn-review" (click)="openReviewModal(item)">
+                    ⭐ Write a Review
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Shipping Address -->
+      <div class="shipping-card">
+        <h3 class="card-title">Shipping Address</h3>
+        <div class="address-details">
+          <p><strong>{{ order.shippingAddress.type | titlecase }}</strong></p>
+          @if (order.shippingAddress.addressLine) {
+            <p>{{ order.shippingAddress.addressLine }}</p>
+          }
+          <p>{{ order.shippingAddress.city }}, {{ order.shippingAddress.state }}</p>
+          @if (order.shippingAddress.postalCode) {
+            <p>{{ order.shippingAddress.postalCode }}</p>
+          }
+          @if (order.phone) {
+            <p>Phone: {{ order.phone }}</p>
+          }
+        </div>
+      </div>
+
+      <!-- Price Breakdown -->
+      <div class="price-breakdown-card">
+        <h3 class="card-title">Price Breakdown</h3>
+        <div class="price-list">
+          <div class="price-row">
+            <span>Subtotal</span>
+            <span>{{ order.totalAmount - order.shippingCost + order.discount }} EGP</span>
+          </div>
+          <div class="price-row">
+            <span>Shipping</span>
+            <span>{{ order.shippingCost }} EGP</span>
+          </div>
+          @if (order.discount > 0) {
+            <div class="price-row discount">
+              <span>Discount</span>
+              <span>-{{ order.discount }} EGP</span>
+            </div>
+          }
+          <div class="price-row total">
+            <span>Total</span>
+            <span>{{ order.finalAmount || order.totalAmount }} EGP</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>
+
+<!-- Return Modal -->
+@if (showReturnModal) {
+  <div class="modal-overlay" (click)="closeReturnModal()">
+    <div class="modal-content return-modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h2>Request Return</h2>
+        <button class="close-btn" (click)="closeReturnModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-description">
+          Please provide a reason for returning this order. Our team will review your request and contact you within 24-48 hours.
+        </p>
+
+        <div class="form-group">
+          <label>Reason for Return *</label>
+          <textarea
+            [(ngModel)]="returnReason"
+            placeholder="e.g., Product not as described, wrong item received, defective product..."
+            rows="5"
+            maxlength="500"
+          ></textarea>
+          <div class="char-count">{{ returnReason.length }}/500</div>
+        </div>
+
+        <div class="info-box">
+          <p><strong>Important:</strong></p>
+          <ul>
+            <li>Returns are only accepted within 14 days of delivery</li>
+            <li>Products must be unused and in original packaging</li>
+            <li>Refund will be processed after product inspection</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeReturnModal()">
+          Cancel
+        </button>
+        <button
+          class="btn btn-warning"
+          (click)="submitReturn()"
+          [disabled]="submittingReturn || !returnReason.trim() || returnReason.trim().length < 10"
+        >
+          {{ submittingReturn ? 'Submitting...' : 'Submit Return Request' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- Review Modal -->
+@if (showReviewModal && selectedProduct) {
+  <div class="modal-overlay" (click)="closeReviewModal()">
+    <div class="modal-content review-modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h2>Write a Review</h2>
+        <button class="close-btn" (click)="closeReviewModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Product Info -->
+        <div class="review-product">
+          <img [src]="getProductImage(selectedProduct)" [alt]="selectedProduct.product.name" />
+          <h3>{{ selectedProduct.product.name || selectedProduct.productName }}</h3>
+        </div>
+
+        <!-- Rating Stars -->
+        <div class="rating-section">
+          <label>Your Rating</label>
+          <div class="stars-input">
+            @for (star of getStarArray(); track star) {
+              <button
+                type="button"
+                class="star-btn"
+                [class.active]="star <= reviewRating"
+                (click)="setRating(star)"
+              >
+                {{ star <= reviewRating ? '★' : '☆' }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Review Comment -->
+        <div class="comment-section">
+          <label>Your Review</label>
+          <textarea
+            [(ngModel)]="reviewComment"
+            placeholder="Tell us about your experience with this product..."
+            rows="5"
+            maxlength="500"
+          ></textarea>
+          <div class="char-count">{{ reviewComment.length }}/500</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeReviewModal()">
+          Cancel
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="submitReview()"
+          [disabled]="submittingReview || !reviewComment.trim()"
+        >
+          {{ submittingReview ? 'Submitting...' : 'Submit Review' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+<!-- Confirmation Modal -->
+<app-confirmation-modal
+  [isVisible]="showConfirmModal"
+  [config]="confirmConfig"
+  (confirmed)="onModalConfirm()"
+  (cancelled)="onModalCancel()">
+</app-confirmation-modal>

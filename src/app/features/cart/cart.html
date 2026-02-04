@@ -1,0 +1,50 @@
+<!-- src/app/features/cart/cart.html - FIXED -->
+
+<div class="container">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading()" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading cart...</p>
+  </div>
+
+  <div class="cart-header">
+    <h1 class="page-title">Shopping Cart</h1>
+  </div>
+
+  <!-- Cart Items -->
+  <div class="cart-container" *ngIf="cart() && cart().items && cart().items.length > 0">
+    <div class="cart-items">
+      <app-cart-item
+        *ngFor="let item of cart().items; trackBy: trackByItemId"
+        [item]="item"
+        (quantityChange)="onQuantityChange(item, $event)"
+        (removeItem)="onRemoveItem(item)">
+      </app-cart-item>
+    </div>
+
+    <app-cart-summary
+      [subtotal]="cart().subtotal || 0"
+      [shipping]="cart().shipping || 0"
+      [discount]="cart().discount || 0"
+      [total]="cart().total || 0"
+      [couponCode]="cart().couponCode"
+      (applyDiscount)="onApplyDiscount($event)"
+      (checkout)="proceedToCheckout()">
+    </app-cart-summary>
+  </div>
+
+  <!-- Empty Cart State -->
+  <div class="empty-cart" *ngIf="(!cart() || !cart().items || cart().items.length === 0) && !isLoading()">
+    <div class="empty-cart-icon">🛒</div>
+    <h2>Your cart is empty</h2>
+    <p>Add some items to get started!</p>
+    <button class="shop-now-btn" (click)="continueShopping()">
+      Shop Now
+    </button>
+  </div>
+
+  <!-- Continue Shopping Link -->
+  <div class="continue-shopping" *ngIf="cart() && cart().items && cart().items.length > 0">
+    <a (click)="continueShopping()">← Continue Shopping</a>
+  </div>
+</div>

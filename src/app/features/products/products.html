@@ -1,0 +1,152 @@
+<div class="category-banner">
+  @if (searchQuery) {
+    <h1>Search Results for "{{ searchQuery }}"</h1>
+    <p>Found {{ products.length }} product{{ products.length !== 1 ? 's' : '' }}</p>
+  } @else {
+    <h1>{{ gender === 'men' ? "Men's Collection" : "Women's Collection" }}</h1>
+    <p>{{ gender === 'men' ? 'Discover the latest trends in men\'s casual wear' : 'Explore the latest fashion trends for women' }}</p>
+  }
+</div>
+
+<div class="container">
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error && !loading) {
+    <div class="error-container">
+      <p>{{ error }}</p>
+      <button (click)="loadProducts()" class="retry-btn">Try Again</button>
+    </div>
+  }
+
+  <!-- Main Content -->
+  @if (!loading && !error) {
+    <div class="category-content">
+      @if (!searchQuery) {
+        <app-product-filter
+          [gender]="gender"
+          (filterChange)="onFilterChange($event)">
+        </app-product-filter>
+      }
+
+      <div class="products-section" [class.full-width]="searchQuery">
+        <div class="products-header">
+          <div class="results-count">
+            @if (searchQuery) {
+              Showing {{ displayedProducts.length }} of {{ filteredProducts.length }} results
+            } @else {
+              Showing {{ displayedProducts.length }} of {{ filteredProducts.length }} products
+            }
+          </div>
+          <app-product-sort (sortChange)="onSortChange($event)"></app-product-sort>
+        </div>
+
+        <!-- Empty State -->
+        @if (displayedProducts.length === 0) {
+          <div class="empty-state">
+            @if (searchQuery) {
+              <p>😔 No products found for "{{ searchQuery }}"</p>
+              <p class="suggestion">Try searching with different keywords</p>
+              <button class="btn-primary" routerLink="/products">Browse All Products</button>
+            } @else {
+              <p>No products found</p>
+            }
+          </div>
+        }
+
+        <!-- Product Grid -->
+        @if (displayedProducts.length > 0) {
+          <div class="product-grid">
+            @for (product of displayedProducts; track product._id) {
+              <div
+                class="product-card"
+                (click)="product._id && goToProductDetails(product._id)">
+
+                <div class="product-image">
+                  @if (product.isNewArrival) {
+                    <span class="new-badge">NEW</span>
+                  }
+                  @if (product.isFeatured) {
+                    <span class="sale-badge">FEATURED</span>
+                  }
+                  @if (product.stock && product.stock <= 3 && product.stock > 0) {
+                    <span class="stock-badge">
+                      Only {{ product.stock }} left
+                    </span>
+                  }
+
+                  @if (product.images && product.images[0]) {
+                    <img
+                      [src]="getImageUrl(product.images[0])"
+                      [alt]="product.name"
+                      class="product-img">
+                  } @else {
+                    <div class="placeholder-img">📦</div>
+                  }
+                </div>
+
+                <div class="product-info">
+                  <div class="product-category">{{ getCategoryName(product.category) }}</div>
+                  <div class="product-name">{{ product.name }}</div>
+
+                  @if (product.rating && product.rating > 0) {
+                    <div class="product-rating">
+                      <span class="stars">{{ getStars(product.rating) }}</span>
+                      <span>({{ product.reviewCount || 0 }})</span>
+                    </div>
+                  }
+
+                  <div class="product-price">
+                    {{ product.price }} EGP
+                  </div>
+
+                  <button
+                    class="add-to-cart"
+                    [disabled]="product.stock === 0"
+                    (click)="addToCart(product, $event)">
+                    {{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Pagination -->
+        @if (totalPages > 1 && displayedProducts.length > 0) {
+          <div class="pagination">
+            <button
+              class="page-btn"
+              (click)="goToPage(currentPage - 1)"
+              [disabled]="currentPage === 1">
+              Previous
+            </button>
+
+            @for (page of pageNumbers; track page) {
+              <button
+                class="page-btn"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)">
+                {{ page }}
+              </button>
+            }
+
+            <button
+              class="page-btn"
+              (click)="goToPage(currentPage + 1)"
+              [disabled]="currentPage === totalPages">
+              Next
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+

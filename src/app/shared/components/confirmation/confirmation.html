@@ -1,0 +1,48 @@
+    <div class="modal-overlay" *ngIf="isVisible" (click)="onCancel()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <!-- Icon -->
+        <div [class]="'modal-icon modal-icon-' + (config.type || 'info')">
+          <!-- Info Icon -->
+          <svg *ngIf="config.type === 'info' || !config.type" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+
+          <!-- Warning Icon -->
+          <svg *ngIf="config.type === 'warning'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+
+          <!-- Danger Icon -->
+          <svg *ngIf="config.type === 'danger'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+
+          <!-- Success Icon -->
+          <svg *ngIf="config.type === 'success'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+
+        <!-- Content -->
+        <div class="modal-content">
+          <h3 class="modal-title">{{ config.title }}</h3>
+          <p class="modal-message">{{ config.message }}</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button
+            class="btn btn-cancel"
+            (click)="onCancel()"
+            type="button">
+            {{ config.cancelText || 'Cancel' }}
+          </button>
+          <button
+            [class]="'btn btn-confirm btn-' + (config.type || 'info')"
+            (click)="onConfirm()"
+            type="button">
+            {{ config.confirmText || 'Confirm' }}
+          </button>
+        </div>
+      </div>
+    </div>

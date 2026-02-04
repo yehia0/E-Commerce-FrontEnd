@@ -1,0 +1,67 @@
+<div class="product-card" [routerLink]="['/product', product._id || product.id]">
+  <div class="product-image">
+    <!-- ✅ Use getProductImage() method -->
+    <img [src]="getProductImage()" [alt]="product.name" />
+
+    <!-- Badges -->
+    @if (isNewProduct()) {
+      <span class="new-badge">NEW</span>
+    }
+
+    @if (isOnSale()) {
+      <span class="sale-badge">SALE</span>
+    }
+
+    @if (isLowStock()) {
+      <span class="stock-badge">Only {{ product.stock }} left</span>
+    }
+
+    @if (product.stock === 0) {
+      <span class="out-of-stock-badge">OUT OF STOCK</span>
+    }
+  </div>
+
+  <div class="product-info">
+    <!-- Category -->
+    @if (getCategoryName()) {
+      <div class="product-category">{{ getCategoryName() }}</div>
+    }
+
+    <!-- Product Name -->
+    <h3 class="product-name">{{ product.name }}</h3>
+
+    <!-- ✅ FIXED: Rating using calculated average from reviews -->
+    <div class="product-rating">
+      <span class="stars">{{ getStars().join('') }}</span>
+      <span class="reviews-count">({{ getReviewCount() }})</span>
+    </div>
+
+    <!-- Price -->
+    <div class="product-price">
+      <span class="current-price">{{ product.price }} EGP</span>
+      @if (isOnSale()) {
+        <span class="old-price">{{ product.oldPrice }} EGP</span>
+        <span class="discount-badge">
+          -{{ Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100) }}%
+        </span>
+      }
+    </div>
+
+    <!-- Add to Cart Button -->
+    <button
+      class="add-to-cart"
+      (click)="addToCart($event)"
+      [disabled]="isAddingToCart || product.stock === 0"
+      [class.loading]="isAddingToCart"
+      [class.out-of-stock]="product.stock === 0"
+    >
+      @if (isAddingToCart) {
+        <span>Adding...</span>
+      } @else if (product.stock === 0) {
+        <span>Out of Stock</span>
+      } @else {
+        <span>Add to Cart</span>
+      }
+    </button>
+  </div>
+</div>

@@ -1,0 +1,227 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.product-card {
+  background: $white;
+  border-radius: $radius-md;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%; // ✅ كل الكاردات نفس الارتفاع
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.product-image {
+  width: 100%;
+  height: 280px; // ✅ ارتفاع ثابت للصورة
+  @include gradient-bg;
+  @include flex-center;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0; // ✅ الصورة مش هتنكمش
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; // ✅ الصورة هتتقص بشكل صحيح
+    object-position: center;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+
+  .placeholder-image {
+    font-size: 5rem;
+    opacity: 0.5;
+  }
+}
+
+.new-badge,
+.sale-badge,
+.stock-badge {
+  position: absolute;
+  top: 10px;
+  padding: 0.3rem 0.8rem;
+  border-radius: $radius-lg;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: $white;
+  z-index: 2;
+}
+
+.new-badge {
+  left: 10px;
+  background-color: $primary-color;
+}
+
+.sale-badge {
+  left: 10px;
+  background-color: $success-color;
+}
+
+.stock-badge {
+  right: 10px;
+  background-color: $warning-color;
+}
+
+.product-info {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1; // ✅ المحتوى يملي المساحة المتبقية
+}
+
+.product-category {
+  font-size: 0.85rem;
+  color: $text-lighter;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.product-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $text-color;
+  margin: 0;
+  line-height: 1.4;
+  min-height: 3rem; // ✅ ارتفاع ثابت للاسم (سطرين)
+  display: -webkit-box;
+  -webkit-line-clamp: 2; // ✅ حد أقصى سطرين
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; // ✅ لو الاسم طويل يحط ...
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  min-height: 1.5rem; // ✅ ارتفاع ثابت للتقييم
+
+  .stars {
+    color: $warning-color;
+  }
+
+  .reviews-count {
+    color: $text-light;
+  }
+}
+
+.product-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: $primary-color;
+  margin-top: auto; // ✅ السعر دايماً في الأسفل
+  padding-top: 0.5rem;
+
+  .old-price {
+    text-decoration: line-through;
+    color: $text-lighter;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+  }
+}
+
+.add-to-cart {
+  width: 100%;
+  background-color: $secondary-color;
+  color: $white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-color;
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &.loading {
+    opacity: 0.8;
+    cursor: wait;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #9ca3af;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  .cart-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ✅ Responsive
+@media (max-width: 768px) {
+  .product-image {
+    height: 220px;
+  }
+
+  .product-info {
+    padding: 1rem;
+  }
+
+  .product-name {
+    font-size: 1rem;
+    min-height: 2.8rem;
+  }
+
+  .product-price {
+    font-size: 1.3rem;
+  }
+
+  .add-to-cart {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-image {
+    height: 180px;
+  }
+
+  .product-name {
+    font-size: 0.95rem;
+    min-height: 2.6rem;
+  }
+}

@@ -1,0 +1,94 @@
+<!-- product-info.html -->
+<div class="product-info">
+  <h1 class="product-title">{{ product?.name }}</h1>
+
+  <!-- ✅ استخدم الـ cached values بدل الـ methods -->
+  <div class="product-rating">
+    <span class="stars">{{ cachedStars }}</span>
+    <span class="rating-number">{{ cachedRating > 0 ? cachedRating.toFixed(1) : '0.0' }}</span>
+    <span class="reviews-count">
+      ({{ cachedReviewCount }} {{ cachedReviewCount === 1 ? 'Review' : 'Reviews' }})
+    </span>
+  </div>
+
+  <div class="product-price">{{ product?.price }} EGP</div>
+
+  <div class="stock-info" [ngClass]="stockClass">
+    {{ stockStatus }}
+  </div>
+
+  <div class="product-description">
+    <p>{{ product?.shortDescription || product?.description }}</p>
+  </div>
+
+  <!-- Size Selector -->
+  <div class="size-selector" *ngIf="sizes.length > 0">
+    <label>Size:</label>
+    <div class="size-options">
+      <button
+        *ngFor="let size of sizes"
+        class="size-option"
+        [class.selected]="size === selectedSize"
+        (click)="selectSize(size)">
+        {{ size }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Color Selector -->
+  <div class="color-selector" *ngIf="colors.length > 0">
+    <label>Color:</label>
+    <div class="color-options">
+      <button
+        *ngFor="let color of colors"
+        class="color-option"
+        [class.selected]="color === selectedColor"
+        (click)="selectColor(color)">
+        {{ color }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Quantity Selector -->
+  <div class="quantity-selector">
+    <label>Quantity:</label>
+    <div class="quantity-controls">
+      <button (click)="decreaseQuantity()" [disabled]="quantity <= 1">-</button>
+      <input type="number" [value]="quantity" readonly>
+      <button (click)="increaseQuantity()" [disabled]="!isInStock">+</button>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button
+      class="btn-primary"
+      (click)="onAddToCart()"
+      [disabled]="!isInStock">
+      {{ isInStock ? 'Add to Cart' : 'Out of Stock' }}
+    </button>
+    <button class="btn-secondary" (click)="onAddToWishlist()">
+      ♥
+    </button>
+  </div>
+
+  <!-- Features -->
+  <div class="product-features">
+    <div class="feature-item">
+      <span class="feature-icon">🚚</span>
+      <span>Fast Delivery</span>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">🔄</span>
+      <span>14-Day Returns</span>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">💳</span>
+      <span>Cash on Delivery</span>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">✓</span>
+      <span>Quality Guaranteed</span>
+    </div>
+  </div>
+</div>

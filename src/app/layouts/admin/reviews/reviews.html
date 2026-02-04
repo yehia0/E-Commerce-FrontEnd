@@ -1,0 +1,174 @@
+<div class="admin-reviews-page">
+  <div class="page-header">
+    <h1>Reviews Management</h1>
+    <div class="stats">
+      <span class="stat-badge pending">
+        {{ pendingReviews.length }} Pending
+      </span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'pending'"
+      (click)="switchTab('pending')"
+      [disabled]="loading"
+    >
+      Pending Reviews ({{ pendingReviews.length }})
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'all'"
+      (click)="switchTab('all')"
+      [disabled]="loading"
+    >
+      All Reviews ({{ reviews.length }})
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading reviews...</p>
+    </div>
+  }
+
+  <!-- Pending Reviews Tab -->
+  @if (!loading && activeTab === 'pending') {
+    @if (pendingReviews.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">✅</div>
+        <h3>No Pending Reviews</h3>
+        <p>All reviews have been processed!</p>
+      </div>
+    } @else {
+      <div class="reviews-list">
+        @for (review of pendingReviews; track review._id) {
+          <div class="review-card pending" [class.processing]="isProcessing(review._id!)">
+            <div class="review-header">
+              <div class="user-info">
+                <h3>{{ review.userName }}</h3>
+                <span class="date">{{ formatDate(review.createdAt) }}</span>
+              </div>
+              <div class="rating">{{ getStars(review.rating) }}</div>
+            </div>
+
+            <div class="review-body">
+              <div class="product-info">
+                <strong>Product:</strong>
+                <span>{{ review.productId }}</span>
+              </div>
+              <div class="comment">
+                <p>{{ review.comment }}</p>
+              </div>
+            </div>
+
+            <div class="review-actions">
+              <button
+                class="btn btn-success"
+                (click)="approveReview(review._id!)"
+                [disabled]="isProcessing(review._id!)"
+              >
+                @if (isProcessing(review._id!)) {
+                  <span class="btn-spinner"></span> Processing...
+                } @else {
+                  ✓ Approve
+                }
+              </button>
+              <button
+                class="btn btn-danger"
+                (click)="rejectReview(review._id!)"
+                [disabled]="isProcessing(review._id!)"
+              >
+                @if (isProcessing(review._id!)) {
+                  <span class="btn-spinner"></span> Processing...
+                } @else {
+                  ✗ Reject
+                }
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- All Reviews Tab -->
+  @if (!loading && activeTab === 'all') {
+    @if (reviews.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <h3>No Reviews Yet</h3>
+        <p>No reviews have been submitted yet.</p>
+      </div>
+    } @else {
+      <div class="reviews-list">
+        @for (review of reviews; track review._id) {
+          <div class="review-card"
+               [class.approved]="review.status === 'approved'"
+               [class.processing]="isProcessing(review._id!)">
+            <div class="review-header">
+              <div class="user-info">
+                <h3>{{ review.userName }}</h3>
+                <span class="date">{{ formatDate(review.createdAt) }}</span>
+              </div>
+              <div class="review-meta">
+                <div class="rating">{{ getStars(review.rating) }}</div>
+                <span class="status-badge" [class]="review.status">
+                  {{ review.status | titlecase }}
+                </span>
+              </div>
+            </div>
+
+            <div class="review-body">
+              <div class="product-info">
+                <strong>Product:</strong>
+                <span>{{ review.productId }}</span>
+              </div>
+              <div class="comment">
+                <p>{{ review.comment }}</p>
+              </div>
+            </div>
+
+            <div class="review-actions">
+              @if (review.status === 'pending') {
+                <button
+                  class="btn btn-success btn-sm"
+                  (click)="approveReview(review._id!)"
+                  [disabled]="isProcessing(review._id!)"
+                >
+                  @if (isProcessing(review._id!)) {
+                    <span class="btn-spinner"></span> Approving...
+                  } @else {
+                    ✓ Approve
+                  }
+                </button>
+              }
+              <button
+                class="btn btn-danger btn-sm"
+                (click)="deleteReview(review._id!)"
+                [disabled]="isProcessing(review._id!)"
+              >
+                @if (isProcessing(review._id!)) {
+                  <span class="btn-spinner"></span> Deleting...
+                } @else {
+                  🗑 Delete
+                }
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+<!-- Confirmation Modal -->
+<app-confirmation-modal
+  [isVisible]="showConfirmModal"
+  [config]="confirmConfig"
+  (confirmed)="onModalConfirm()"
+  (cancelled)="onModalCancel()">
+</app-confirmation-modal>

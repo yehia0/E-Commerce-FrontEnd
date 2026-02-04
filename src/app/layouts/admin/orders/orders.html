@@ -1,0 +1,459 @@
+<div class="orders-page">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading orders...</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div *ngFor="let stat of stats" [class]="'stat-card stat-' + stat.color">
+      <div class="stat-content">
+        <div class="stat-info">
+          <p class="stat-label">{{ stat.label }}</p>
+          <p class="stat-value">{{ stat.value }}</p>
+        </div>
+        <div class="stat-icon">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Card -->
+<div class="filters-card">
+  <div class="filters-wrapper">
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search orders by ID, customer, or email..."
+        class="search-input"
+      />
+      <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+    </div>
+
+    <select [(ngModel)]="statusFilter" class="filter-select">
+      <option value="all">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="preparing">Processing</option>
+      <option value="shipped">Shipped</option>
+      <option value="delivered">Delivered</option>
+      <option value="cancelled">Cancelled</option>
+      <option value="return-requested">Return Requested</option>
+      <option value="returned">Returned</option>
+    </select>
+
+    <!-- ✅ NEW - Export Button with Dropdown -->
+    <div class="export-dropdown">
+      <button (click)="exportOrders()" class="btn-export">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Export Sales Report
+        <svg style="width: 1rem; height: 1rem; margin-left: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+
+      <!-- ✅ Date Picker Dropdown -->
+      <div *ngIf="showDatePicker" class="export-menu">
+        <div class="date-picker-header">
+          <h4>Select Date Range</h4>
+          <button class="close-picker" (click)="showDatePicker = false">×</button>
+        </div>
+
+        <!-- Quick Filters -->
+        <div class="quick-filters">
+          <button (click)="setLastWeek()" class="quick-btn">Last 7 Days</button>
+          <button (click)="setLastMonth()" class="quick-btn">Last 30 Days</button>
+          <button (click)="setLastYear()" class="quick-btn">Last Year</button>
+        </div>
+
+        <!-- Date Inputs -->
+        <div class="date-inputs">
+          <div class="date-field">
+            <label>From</label>
+            <input type="date" [(ngModel)]="startDate" />
+          </div>
+          <div class="date-field">
+            <label>To</label>
+            <input type="date" [(ngModel)]="endDate" />
+          </div>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="export-actions">
+          <button
+            (click)="exportPDF()"
+            [disabled]="isExportingPDF"
+            class="export-btn pdf-btn">
+            <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+            {{ isExportingPDF ? 'Downloading...' : 'Export PDF' }}
+          </button>
+
+          <button
+            (click)="exportExcel()"
+            [disabled]="isExportingExcel"
+            class="export-btn excel-btn">
+            <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            {{ isExportingExcel ? 'Downloading...' : 'Export Excel' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Orders Table -->
+  <div class="table-card">
+    <div class="table-wrapper">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of filteredOrders">
+            <td>
+              <span class="order-id">#{{ order.orderId }}</span>
+            </td>
+            <td>
+              <div class="customer-info">
+                <span class="customer-name">{{ order.customer }}</span>
+                <span class="customer-email">{{ order.email }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="date-text">{{ order.date }}</span>
+            </td>
+            <td>
+              <span class="items-count">{{ order.items }} items</span>
+            </td>
+            <td>
+              <span class="total-amount">{{ order.total }} EGP</span>
+            </td>
+            <td>
+              <span class="payment-method">{{ order.paymentMethod }}</span>
+            </td>
+            <td>
+              <button
+                (click)="changeStatus(order)"
+                [class]="'status-badge status-' + order.status">
+                {{ getStatusText(order.status) }}
+              </button>
+              <!-- Return Badge -->
+              <span *ngIf="order.returnRequest?.requested"
+                    class="return-badge"
+                    [class.pending]="order.returnRequest?.status === 'pending'"
+                    [class.approved]="order.returnRequest?.status === 'approved'"
+                    [class.rejected]="order.returnRequest?.status === 'rejected'"
+                    style="display: block; margin-top: 0.5rem;">
+                ↩️ {{ order.returnRequest?.status }}
+              </span>
+            </td>
+            <td>
+              <div class="actions-cell">
+                <!-- View Button -->
+                <button
+                  (click)="viewOrder(order)"
+                  class="btn-action btn-view"
+                  title="View Order">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+
+                <!-- Approve Return Button -->
+                <button *ngIf="order.returnRequest?.requested && order.returnRequest?.status === 'pending'"
+                  (click)="handleReturnRequest(order, 'approve')"
+                  class="btn-action btn-approve"
+                  title="Approve Return">
+                  ✓
+                </button>
+
+                <!-- Reject Return Button -->
+                <button *ngIf="order.returnRequest?.requested && order.returnRequest?.status === 'pending'"
+                  (click)="handleReturnRequest(order, 'reject')"
+                  class="btn-action btn-reject"
+                  title="Reject Return">
+                  ✕
+                </button>
+
+                <!-- Print Button -->
+                <button
+                  (click)="printOrder(order)"
+                  class="btn-action btn-print"
+                  title="Print Order">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                  </svg>
+                </button>
+
+                <!-- Delete Button -->
+                <button
+                  (click)="deleteOrder(order)"
+                  class="btn-action btn-delete"
+                  title="Delete Order">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredOrders.length === 0" class="empty-state">
+      <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+      </svg>
+      <h3 class="empty-title">No orders found</h3>
+      <p class="empty-text">Try adjusting your search or filter criteria</p>
+    </div>
+  </div>
+
+  <!-- View Order Modal -->
+  <div *ngIf="showViewModal" class="modal-overlay" (click)="closeViewModal()">
+    <div class="modal-content view-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Order Details #{{ viewingOrder?.orderId }}</h2>
+        <button class="close-btn" (click)="closeViewModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" *ngIf="viewingOrder">
+        <!-- Customer Info Section-->
+<div class="info-section">
+  <h3 class="section-title">Customer Information</h3>
+  <div class="info-grid">
+    <div class="info-item">
+      <span class="info-label">Name</span>
+      <span class="info-value">{{ viewingOrder.customer }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Email</span>
+      <span class="info-value">{{ viewingOrder.email }}</span>
+    </div>
+    <!-- Phone Number -->
+    <div class="info-item" *ngIf="viewingOrder.phone && viewingOrder.phone !== '-'">
+      <span class="info-label">Phone</span>
+      <span class="info-value">{{ viewingOrder.phone }}</span>
+    </div>
+    <div class="info-item full-width">
+      <span class="info-label">Shipping Address</span>
+      <span class="info-value">{{ viewingOrder.shippingAddress }}</span>
+    </div>
+  </div>
+</div>
+
+        <!-- Order Info -->
+        <div class="info-section">
+          <h3 class="section-title">Order Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Order Date</span>
+              <span class="info-value">{{ viewingOrder.date }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Status</span>
+              <span [class]="'status-badge status-' + viewingOrder.status">
+                {{ getStatusText(viewingOrder.status) }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Payment Method</span>
+              <span class="info-value">{{ viewingOrder.paymentMethod }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Total Items</span>
+              <span class="info-value">{{ viewingOrder.items }}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="info-label">Total Amount</span>
+              <span class="info-value total-highlight">{{ viewingOrder.total }} EGP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Items Details -->
+        <div class="info-section" *ngIf="viewingOrder.itemsData && viewingOrder.itemsData.length > 0">
+          <h3 class="section-title">Order Items</h3>
+          <div class="items-list">
+            <div class="order-item-row" *ngFor="let item of viewingOrder.itemsData">
+              <div class="item-info">
+                <span class="item-name">{{ item.productName }}</span>
+                <div class="item-meta">
+                  <span *ngIf="item.size" class="meta-tag">Size: {{ item.size }}</span>
+                  <span *ngIf="item.color" class="meta-tag">Color: {{ item.color }}</span>
+                </div>
+              </div>
+              <div class="item-pricing">
+                <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                <span class="item-price">{{ item.price }} EGP</span>
+                <span class="item-subtotal">{{ item.subtotal }} EGP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Return Request Info -->
+        <div class="info-section" *ngIf="viewingOrder.returnRequest?.requested">
+          <h3 class="section-title" style="color: #ff9800;">Return Request</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Status</span>
+              <span [class]="'status-badge status-' + (viewingOrder.returnRequest?.status || 'pending')">
+                {{ viewingOrder.returnRequest?.status | titlecase }}
+              </span>
+            </div>
+            <div class="info-item" *ngIf="viewingOrder.returnRequest?.requestedAt">
+              <span class="info-label">Requested Date</span>
+              <span class="info-value">{{ viewingOrder.returnRequest?.requestedAt | date: 'medium' }}</span>
+            </div>
+            <div class="info-item full-width" *ngIf="viewingOrder.returnRequest?.reason">
+              <span class="info-label">Reason</span>
+              <span class="info-value">{{ viewingOrder.returnRequest?.reason }}</span>
+            </div>
+            <div class="info-item full-width" *ngIf="viewingOrder.returnRequest?.adminResponse">
+              <span class="info-label">Admin Response</span>
+              <span class="info-value">{{ viewingOrder.returnRequest?.adminResponse }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons if pending -->
+          <div *ngIf="viewingOrder.returnRequest?.status === 'pending'" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <button (click)="handleReturnRequest(viewingOrder, 'approve')" class="btn-save">
+              ✓ Approve Return
+            </button>
+            <button (click)="handleReturnRequest(viewingOrder, 'reject'); closeViewModal()" class="btn-cancel" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; border-color: #ef4444;">
+              ✕ Reject Return
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" (click)="closeViewModal()" class="btn-cancel">
+          Close
+        </button>
+        <button type="button" (click)="printFromView()" class="btn-save">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+          </svg>
+          Print Order
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Status Modal -->
+  <div *ngIf="showStatusModal" class="modal-overlay" (click)="closeStatusModal()">
+    <div class="modal-content status-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Change Order Status</h2>
+        <button class="close-btn" (click)="closeStatusModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" *ngIf="editingOrder">
+        <p class="status-info">Order #{{ editingOrder.orderId }}</p>
+
+        <div class="status-options">
+          <button
+            *ngFor="let status of availableStatuses"
+            (click)="updateOrderStatus(status)"
+            [class]="'status-option status-' + status"
+            [class.active]="editingOrder.status === status">
+            <svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ getStatusText(status) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" (click)="closeStatusModal()" class="btn-cancel">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Return Modal -->
+  <div *ngIf="showReturnModal" class="modal-overlay" (click)="closeReturnModal()">
+    <div class="modal-content return-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ returnAction === 'approve' ? '✓ Approve' : '✕ Reject' }} Return Request</h2>
+        <button class="close-btn" (click)="closeReturnModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" *ngIf="returnOrder">
+        <div class="return-details">
+          <p><strong>Order #:</strong> {{ returnOrder.orderId }}</p>
+          <p><strong>Customer:</strong> {{ returnOrder.customer }}</p>
+          <p><strong>Total:</strong> {{ returnOrder.total }} EGP</p>
+
+          <div class="return-reason">
+            <h4>Customer's Reason:</h4>
+            <p class="reason-text">{{ returnOrder.returnRequest?.reason || 'No reason provided' }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Admin Response (Optional)</label>
+            <textarea
+              [(ngModel)]="adminResponse"
+              placeholder="Add a note or explanation..."
+              rows="4"
+            ></textarea>
+          </div>
+
+          <div class="warning-box" *ngIf="returnAction === 'approve'">
+            <p>⚠️ Approving this return will:</p>
+            <ul>
+              <li>Change order status to "Returned"</li>
+              <li>Restore product stock</li>
+              <li>Mark the return as approved</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" (click)="closeReturnModal()" class="btn-cancel">
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="submitReturnDecision()"
+          [class]="returnAction === 'approve' ? 'btn-save' : 'btn-reject-confirm'">
+          {{ returnAction === 'approve' ? '✓ Approve Return' : '✕ Reject Return' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<app-confirmation-modal
+  [config]="confirmConfig"
+  [isVisible]="showConfirmModal"
+  (confirmed)="onModalConfirm()"
+  (cancelled)="onModalCancel()">
+</app-confirmation-modal>

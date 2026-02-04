@@ -1,0 +1,464 @@
+<div class="admin-products">
+
+  <!-- Actions Bar -->
+  <div class="actions-bar">
+    <div class="search-filter">
+
+      <input
+        type="text"
+        placeholder="Search products..."
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+        class="search-input"
+      />
+
+      <select
+        [(ngModel)]="filterGender"
+        (change)="onFilter()"
+        class="filter-select"
+      >
+        <option value="">All Genders</option>
+        <option value="men">Men</option>
+        <option value="women">Women</option>
+        <option value="unisex">Unisex</option>
+      </select>
+
+      <button class="btn-secondary" (click)="clearFilters()">
+        Clear Filters
+      </button>
+
+    </div>
+
+    <button class="btn-primary" (click)="openCreateModal()">
+      + Add New Product
+    </button>
+  </div>
+
+  <!-- Products Table -->
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  }
+  @else if (products.length > 0) {
+
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Gender</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (product of products; track product._id) {
+            <tr>
+
+              <td>
+                @if (product.images && product.images.length > 0) {
+                  <img
+                    [src]="getImageUrl(product.images[0])"
+                    [alt]="product.name"
+                    class="product-thumb"
+                  />
+                }
+                @else {
+                  <div class="product-thumb-placeholder">🛍️</div>
+                }
+              </td>
+
+              <td>
+                <div class="product-name-cell">
+                  <strong>{{ product.name }}</strong>
+
+                  @if (product.isNewArrival) {
+                    <span class="badge badge-new">NEW</span>
+                  }
+
+                  @if (product.isFeatured) {
+                    <span class="badge badge-featured">FEATURED</span>
+                  }
+                </div>
+              </td>
+
+              <!-- Fixed: Display category name only -->
+              <td>
+                @if (product.category) {
+                  @if (typeof product.category === 'object' && product.category.name) {
+                    {{ product.category.name }}
+                  }
+                  @else if (typeof product.category === 'string') {
+                    {{ product.category }}
+                  }
+                  @else {
+                    <span class="text-muted">N/A</span>
+                  }
+                }
+                @else {
+                  <span class="text-muted">N/A</span>
+                }
+              </td>
+
+              <!-- New: Display subcategory only -->
+              <td>
+                @if (product.subCategory && typeof product.subCategory === 'object') {
+                  {{ product.subCategory.name }}
+                }
+                @else if (product.subcategory && typeof product.subcategory === 'object') {
+                  {{ product.subcategory.name }}
+                }
+                @else if (product.subCategory) {
+                  {{ product.subCategory }}
+                }
+                @else if (product.subcategory) {
+                  {{ product.subcategory }}
+                }
+                @else {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+
+              <td>{{ product.price }} EGP</td>
+
+              <td>
+                <span
+                  [class]="product.stock <= 5 ? 'stock-low' : 'stock-good'"
+                >
+                  {{ product.stock }}
+                </span>
+              </td>
+
+              <td>{{ product.gender | titlecase }}</td>
+
+              <td>
+                <span
+                  [class]="product.stock > 0 ? 'badge status-success' : 'badge status-danger'"
+                >
+                  {{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                </span>
+              </td>
+
+              <td>
+                <div class="action-buttons">
+                  <button
+                    class="btn-icon"
+                    title="Edit"
+                    (click)="openEditModal(product)"
+                  >
+                    ✏️
+                  </button>
+
+                  <button
+                    class="btn-icon danger"
+                    title="Delete"
+                    (click)="deleteProduct(product._id!)"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button
+        class="btn-secondary"
+        (click)="prevPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+
+      <span class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+
+      <button
+        class="btn-secondary"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+
+  }
+  @else {
+    <div class="no-data">
+      <p>No products found</p>
+      <button class="btn-primary" (click)="openCreateModal()">
+        Add First Product
+      </button>
+    </div>
+  }
+
+</div>
+
+<!-- Create / Edit Modal -->
+@if (showModal && editingProduct !== null) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h2>
+          {{ editingProduct._id ? 'Edit Product' : 'Create New Product' }}
+        </h2>
+        <button class="close-btn" (click)="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input type="text" [(ngModel)]="editingProduct.name" required />
+        </div>
+
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea
+            rows="4"
+            [(ngModel)]="editingProduct.description"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (EGP) *</label>
+            <input type="number" [(ngModel)]="editingProduct.price" required />
+          </div>
+
+          <div class="form-group">
+            <label>Stock *</label>
+            <input type="number" [(ngModel)]="editingProduct.stock" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Gender *</label>
+            <select
+              [(ngModel)]="editingProduct.gender"
+              (change)="onGenderChange()"
+              required
+            >
+              <option value="">Select Gender</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="unisex">Unisex</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Category *</label>
+            <select [(ngModel)]="editingProduct.category" (change)="onCategoryChange()" required [disabled]="!editingProduct.gender">
+              <option value="">{{ editingProduct.gender ? 'Select Category' : 'Select Gender First' }}</option>
+              @for (cat of filteredCategories; track cat._id) {
+                <option [value]="cat._id">{{ cat.name }}</option>
+              }
+            </select>
+            @if (!editingProduct.gender) {
+              <p class="helper-text">⚠️ Please select gender first</p>
+            }
+            @else if (filteredCategories.length === 0) {
+              <p class="helper-text">⚠️ No categories found for {{ editingProduct.gender }}. Please create categories first.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Subcategory Section -->
+        <div class="form-group">
+          <label>Subcategory (Optional)</label>
+          <select
+            [(ngModel)]="editingProduct.subcategory"
+            [disabled]="!editingProduct.category"
+            class="subcategory-select"
+          >
+            <option value="">{{ editingProduct.category ? 'Select Subcategory (Optional)' : 'Select Category First' }}</option>
+            @for (subcat of filteredSubcategories; track subcat._id) {
+              <option [value]="subcat._id">{{ subcat.name }}</option>
+            }
+          </select>
+          @if (!editingProduct.category) {
+            <p class="helper-text">⚠️ Please select category first</p>
+          }
+          @else if (filteredSubcategories.length === 0) {
+            <p class="helper-text">💡 No subcategories available for this category</p>
+          }
+        </div>
+
+        <!-- Images Section -->
+        <div class="form-group">
+          <label>Product Images</label>
+
+          @if (editingProduct.images && editingProduct.images.length > 0) {
+            <div class="images-preview">
+              @for (image of editingProduct.images; track $index) {
+                <div class="image-item">
+                  <img [src]="getImageUrl(image)" [alt]="'Image ' + ($index + 1)" />
+                  <button
+                    type="button"
+                    class="remove-image-btn"
+                    (click)="removeImage($index)"
+                    title="Remove image"
+                  >
+                    ✕
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="upload-section">
+            <label for="imageUpload" class="upload-label">
+              <span class="upload-icon">📁</span>
+              <span>Choose Images from Device</span>
+              <input
+                type="file"
+                id="imageUpload"
+                accept="image/*"
+                multiple
+                (change)="onImageSelected($event)"
+                style="display: none;"
+              />
+            </label>
+          </div>
+
+          @if (uploadingImages) {
+            <div class="uploading-indicator">
+              <div class="spinner-small"></div>
+              <span>Uploading images...</span>
+            </div>
+          }
+
+          <p class="helper-text">💡 Upload images directly from your device (Max 5 images, 5MB each)</p>
+        </div>
+
+        <!-- Sizes Section -->
+        <div class="form-group">
+          <label>Available Sizes</label>
+
+          @if (editingProduct.sizes && editingProduct.sizes.length > 0) {
+            <div class="tags-list">
+              @for (size of editingProduct.sizes; track $index) {
+                <span class="tag">
+                  {{ size }}
+                  <button
+                    type="button"
+                    (click)="removeFromArray(editingProduct.sizes!, $index)"
+                  >
+                    ✕
+                  </button>
+                </span>
+              }
+            </div>
+          }
+
+          <div class="add-tag-section">
+            <input
+              type="text"
+              [(ngModel)]="newSize"
+              placeholder="Enter size (e.g., 42, L, XL)"
+              (keyup.enter)="addSize()"
+            />
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="addSize()"
+            >
+              Add Size
+            </button>
+          </div>
+        </div>
+
+        <!-- Colors Section -->
+        <div class="form-group">
+          <label>Available Colors</label>
+
+          @if (editingProduct.colors && editingProduct.colors.length > 0) {
+            <div class="tags-list">
+              @for (color of editingProduct.colors; track $index) {
+                <span class="tag">
+                  {{ color }}
+                  <button
+                    type="button"
+                    (click)="removeFromArray(editingProduct.colors!, $index)"
+                  >
+                    ✕
+                  </button>
+                </span>
+              }
+            </div>
+          }
+
+          <div class="add-tag-section">
+            <input
+              type="text"
+              [(ngModel)]="newColor"
+              placeholder="Enter color (e.g., Black, White, Red)"
+              (keyup.enter)="addColor()"
+            />
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="addColor()"
+            >
+              Add Color
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input
+              type="checkbox"
+              [(ngModel)]="editingProduct.isNewArrival"
+            />
+            Mark as New Arrival
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input
+              type="checkbox"
+              [(ngModel)]="editingProduct.isFeatured"
+            />
+            Mark as Featured
+          </label>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">
+          Cancel
+        </button>
+        <button class="btn-primary" (click)="saveProduct()">
+          {{ editingProduct._id ? 'Update' : 'Create' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+<app-confirmation-modal
+  [config]="confirmConfig"
+  [isVisible]="showConfirmModal"
+  (confirmed)="onModalConfirm()"
+  (cancelled)="onModalCancel()">
+</app-confirmation-modal>

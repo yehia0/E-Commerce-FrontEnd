@@ -1,0 +1,135 @@
+<h2 class="section-title">Shipping Information</h2>
+
+<!-- Loading State -->
+<div *ngIf="loadingAddresses" class="loading-state">
+  <div class="spinner"></div>
+  <p>Loading saved addresses...</p>
+</div>
+
+<!-- Saved Addresses -->
+<div class="saved-addresses" *ngIf="!loadingAddresses && savedAddresses.length > 0">
+  <h3>Saved Addresses</h3>
+
+  <div
+    *ngFor="let address of savedAddresses"
+    class="address-card"
+    [class.selected]="address._id === selectedAddressId"
+    (click)="selectAddress(address._id)">
+
+    <input
+      type="radio"
+      name="address"
+      [checked]="address._id === selectedAddressId">
+
+    <div class="address-content">
+      <div class="address-type">
+        {{ getAddressTypeLabel(address.type) }}
+        <span *ngIf="address.isDefault" class="address-default">Default</span>
+      </div>
+      <div class="address-name">
+        {{ address.firstName || address.name }} {{ address.lastName || '' }}
+      </div>
+      <div class="address-line">{{ getFullAddress(address) }}</div>
+      <div class="address-phone">{{ address.phone }}</div>
+    </div>
+  </div>
+
+  <button class="add-new-address" (click)="toggleNewAddressForm()">
+    <span *ngIf="!showNewAddressForm">+ Add New Address</span>
+    <span *ngIf="showNewAddressForm">← Use Saved Address</span>
+  </button>
+</div>
+
+<!-- New Address Form -->
+<div *ngIf="!loadingAddresses && (showNewAddressForm || savedAddresses.length === 0)" class="new-address-form">
+  <h3>{{ savedAddresses.length > 0 ? 'New Address' : 'Shipping Address' }}</h3>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>First Name *</label>
+      <input
+        type="text"
+        [(ngModel)]="newAddress.firstName"
+        placeholder="John"
+        required>
+    </div>
+    <div class="form-group">
+      <label>Last Name *</label>
+      <input
+        type="text"
+        [(ngModel)]="newAddress.lastName"
+        placeholder="Doe"
+        required>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Email *</label>
+    <input
+      type="email"
+      [(ngModel)]="newAddress.email"
+      placeholder="john@example.com"
+      required>
+  </div>
+
+  <div class="form-group">
+    <label>Mobile Number *</label>
+    <input
+      type="tel"
+      [(ngModel)]="newAddress.phone"
+      placeholder="+20 123 456 7890"
+      required>
+  </div>
+
+  <div class="form-group">
+    <label>Address *</label>
+    <input
+      type="text"
+      placeholder="Street address, building, apartment..."
+      [(ngModel)]="newAddress.address"
+      required>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>City *</label>
+      <input
+        type="text"
+        [(ngModel)]="newAddress.city"
+        placeholder="Cairo"
+        required>
+    </div>
+    <div class="form-group">
+      <label>State / Province *</label>
+      <input
+        type="text"
+        [(ngModel)]="newAddress.state"
+        placeholder="Cairo Governorate"
+        required>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Address Type</label>
+    <select [(ngModel)]="newAddress.type">
+      <option value="home">Home</option>
+      <option value="office">Office</option>
+      <option value="other">Other</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label class="checkbox-label">
+      <input type="checkbox" [(ngModel)]="newAddress.setAsDefault">
+      <span>Set as default address</span>
+    </label>
+  </div>
+</div>
+
+<!-- Submit Button -->
+<button
+  class="btn-primary"
+  [disabled]="!isFormValid() || loadingAddresses"
+  (click)="onSubmit()">
+  Continue to Payment
+</button>

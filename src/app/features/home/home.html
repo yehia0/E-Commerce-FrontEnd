@@ -1,0 +1,247 @@
+<!-- src/app/features/home/home.html -->
+
+<!-- Search Container -->
+<div class="search-container">
+  <div class="search-bar-wrapper">
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Search for products..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput()"
+        (keypress)="onSearchKeypress($event)"
+        (blur)="hideSuggestions()"
+        class="search-input"
+      />
+      <button (click)="searchProducts()" class="search-button">
+        @if (isSearching) {
+          <span class="mini-spinner"></span>
+        } @else {
+          <span>Search</span>
+        }
+      </button>
+    </div>
+
+    <!-- ✅ Search Suggestions Dropdown -->
+    @if (showSuggestions && searchSuggestions.length > 0) {
+      <div class="search-suggestions" (mousedown)="onSuggestionsMouseDown($event)">
+        @for (product of searchSuggestions; track product._id) {
+          <div class="suggestion-item" (click)="goToProduct(product)">
+            <div class="suggestion-image">
+              @if (product.images && product.images[0]) {
+                <img [src]="getProductImageUrl(product)" [alt]="product.name">
+              } @else {
+                <div class="placeholder-image">📦</div>
+              }
+            </div>
+            <div class="suggestion-info">
+              <div class="suggestion-name">{{ product.name }}</div>
+              <div class="suggestion-price">{{ product.price }} EGP</div>
+            </div>
+            @if (product.rating && product.rating > 0) {
+              <div class="suggestion-rating">
+                {{ getStars(product.rating) }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ✅ No results message -->
+    @if (showSuggestions && searchSuggestions.length === 0 && searchQuery.length >= 2) {
+      <div class="search-suggestions">
+        <div class="no-results">
+          <span>No products found for "{{ searchQuery }}"</span>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Hero Section -->
+<section class="hero">
+  <h1>New Season Collection</h1>
+  <p>Discover the latest trends in casual wear for men and women</p>
+  <button class="btn-primary" routerLink="/men">Shop Now</button>
+</section>
+
+<!-- Features Section -->
+<div class="features">
+  <div class="feature-card">
+    <div class="feature-icon">🚚</div>
+    <h3>Fast Delivery</h3>
+    <p>Quick delivery within 3-5 business days</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">💳</div>
+    <h3>Cash on Delivery</h3>
+    <p>Pay when you receive your order</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🔄</div>
+    <h3>14-Day Returns</h3>
+    <p>Easy return policy within 14 days</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">✅</div>
+    <h3>Quality Guaranteed</h3>
+    <p>100% authentic products</p>
+  </div>
+</div>
+
+<!-- Men's Best Sellers -->
+<div class="container">
+  <div class="section-header">
+    <h2>🔥 Best Sellers - Men</h2>
+    <a routerLink="/men" class="view-all">View All →</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  } @else if (menBestSellers.length > 0) {
+    <div class="product-grid">
+      @for (product of menBestSellers; track product._id) {
+        <app-product-card [product]="product"></app-product-card>
+      }
+    </div>
+  } @else {
+    <p class="no-products">No products available</p>
+  }
+</div>
+
+<!-- Women's Best Sellers -->
+<div class="container">
+  <div class="section-header">
+    <h2>💎 Best Sellers - Women</h2>
+    <a routerLink="/women" class="view-all">View All →</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  } @else if (womenBestSellers.length > 0) {
+    <div class="product-grid">
+      @for (product of womenBestSellers; track product._id) {
+        <app-product-card [product]="product"></app-product-card>
+      }
+    </div>
+  } @else {
+    <p class="no-products">No products available</p>
+  }
+</div>
+
+<!-- Men's New Arrivals -->
+<div class="container new-arrivals" id="new">
+  <div class="section-header">
+    <h2>✨ New Arrivals - Men</h2>
+    <a routerLink="/men" class="view-all">View All →</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  } @else if (menNewArrivals.length > 0) {
+    <div class="product-grid">
+      @for (product of menNewArrivals; track product._id) {
+        <app-product-card [product]="product"></app-product-card>
+      }
+    </div>
+  } @else {
+    <p class="no-products">No products available</p>
+  }
+</div>
+
+<!-- Women's New Arrivals -->
+<div class="container">
+  <div class="section-header">
+    <h2>🌟 New Arrivals - Women</h2>
+    <a routerLink="/women" class="view-all">View All →</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  } @else if (womenNewArrivals.length > 0) {
+    <div class="product-grid">
+      @for (product of womenNewArrivals; track product._id) {
+        <app-product-card [product]="product"></app-product-card>
+      }
+    </div>
+  } @else {
+    <p class="no-products">No products available</p>
+  }
+</div>
+
+<!-- ✅ Customer Reviews Section -->
+<div class="customer-reviews-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>💬 What Our Customers Say</h2>
+      <p class="subtitle">Real reviews from real customers</p>
+    </div>
+
+    @if (loadingReviews) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading reviews...</p>
+      </div>
+    } @else if (customerReviews.length > 0) {
+      <div class="reviews-carousel">
+        <!-- Navigation Buttons -->
+        <button class="nav-btn prev-btn" (click)="previousReview()">‹</button>
+
+        <!-- Reviews Grid -->
+        <div class="reviews-grid">
+          @for (review of getVisibleReviews(); track review._id) {
+            <div class="review-card">
+              <!-- User Avatar -->
+              <div class="review-avatar">
+                {{ getUserInitials(review) }}
+              </div>
+
+              <!-- Stars -->
+              <div class="review-stars">
+                {{ getStars(review.rating) }}
+              </div>
+
+              <!-- Comment -->
+              <p class="review-comment">{{ review.comment }}</p>
+
+              <!-- User Info -->
+              <div class="review-footer">
+                <div class="reviewer-name">{{ getUserName(review) }}</div>
+                <div class="product-name">{{ getProductName(review) }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button class="nav-btn next-btn" (click)="nextReview()">›</button>
+      </div>
+
+      <!-- Dots Indicator -->
+      <div class="dots-container">
+        @for (review of customerReviews; track $index) {
+          <span
+            class="dot"
+            [class.active]="$index === currentReviewIndex"
+            (click)="currentReviewIndex = $index">
+          </span>
+        }
+      </div>
+    } @else {
+      <p class="no-reviews">No reviews yet. Be the first to review our products!</p>
+    }
+  </div>
+</div>

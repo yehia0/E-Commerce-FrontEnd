@@ -1,0 +1,33 @@
+<h2 class="section-title">Payment Method</h2>
+
+<div class="payment-methods">
+  <div
+    *ngFor="let method of paymentMethods"
+    class="payment-option"
+    [class.selected]="method.id === selectedMethod"
+    (click)="selectPayment(method.id)">
+    <input
+      type="radio"
+      name="payment"
+      [checked]="method.id === selectedMethod">
+    <div class="payment-icon">{{ method.icon }}</div>
+    <div class="payment-info">
+      <div class="payment-title">{{ method.name }}</div>
+      <div class="payment-desc">{{ method.description }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="order-notes">
+  <label>Order Notes (Optional)</label>
+  <textarea
+    rows="4"
+    placeholder="Any special instructions for delivery?"
+    [(ngModel)]="orderNotes"
+    (ngModelChange)="onNotesChange()">
+  </textarea>
+</div>
+
+<button class="btn-primary" (click)="onContinue()">
+  Continue to Review
+</button>

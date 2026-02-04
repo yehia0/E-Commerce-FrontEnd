@@ -1,0 +1,68 @@
+<!-- Hero Section -->
+<div class="hero">
+  <h1>About Urban Style</h1>
+  <p>We're passionate about bringing you the best in casual fashion. Quality, style, and affordability - that's what we stand for.</p>
+</div>
+
+<div class="container">
+  <!-- Our Story -->
+  <div class="story-section">
+    <div class="story-content">
+      <h2>Our Story</h2>
+      <p>Urban Style was founded in 2020 with a simple mission: to make quality casual fashion accessible to everyone. What started as a small online store has grown into a beloved destination for fashion-conscious shoppers across Egypt.</p>
+      <p>We believe that style shouldn't break the bank. That's why we work directly with manufacturers to bring you high-quality clothing at prices that make sense. Every piece in our collection is carefully selected to ensure it meets our standards for quality, comfort, and style.</p>
+      <p>Today, we serve thousands of happy customers and continue to grow our collection with the latest trends in casual wear for men and women.</p>
+    </div>
+    <div class="story-image">🛍️</div>
+  </div>
+
+  <!-- Our Values -->
+  <div class="values-section">
+    <h2 class="section-title">Our Values</h2>
+    <div class="values-grid">
+      @for (value of values; track value.title) {
+        <div class="value-card">
+          <div class="value-icon">{{ value.icon }}</div>
+          <h3>{{ value.title }}</h3>
+          <p>{{ value.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      @for (stat of stats; track stat.label) {
+        <div class="stat-item">
+          <div class="stat-number">{{ stat.value }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Team -->
+  <div class="team-section">
+    <h2 class="section-title">Meet Our Team</h2>
+    <div class="team-grid">
+      @for (member of team; track member.name) {
+        <div class="team-card">
+          <div class="team-image">{{ member.image }}</div>
+          <div class="team-info">
+            <div class="team-name">{{ member.name }}</div>
+            <div class="team-role">{{ member.role }}</div>
+            <p class="team-bio">{{ member.bio }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2>Ready to Upgrade Your Style?</h2>
+    <p>Join thousands of satisfied customers and discover your new favorite pieces</p>
+    <button class="cta-btn" routerLink="/">Shop Now</button>
+  </div>
+</div>

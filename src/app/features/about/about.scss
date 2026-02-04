@@ -1,0 +1,236 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.hero {
+  @include gradient-bg;
+  color: $white;
+  padding: 6rem 2rem;
+  text-align: center;
+
+  h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1.3rem;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.story-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+.story-content {
+  h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: $text-color;
+  }
+
+  p {
+    line-height: 1.8;
+    color: $text-light;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+}
+
+.story-image {
+  width: 100%;
+  height: 400px;
+  @include gradient-bg;
+  border-radius: $radius-md;
+  @include flex-center;
+  font-size: 8rem;
+}
+
+.values-section {
+  background: $white;
+  border-radius: $radius-md;
+  padding: 4rem 2rem;
+  margin-bottom: 4rem;
+  box-shadow: $shadow-md;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: $text-color;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.value-card {
+  text-align: center;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: $radius-md;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: translateY(-10px);
+  }
+
+  .value-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: $text-color;
+  }
+
+  p {
+    color: $text-light;
+    line-height: 1.6;
+  }
+}
+
+.stats-section {
+  @include gradient-bg;
+  color: $white;
+  padding: 4rem 2rem;
+  border-radius: $radius-md;
+  margin-bottom: 4rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 3rem;
+  text-align: center;
+}
+
+.stat-item {
+  padding: 2rem;
+}
+
+.stat-number {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.team-section {
+  margin-bottom: 4rem;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.team-card {
+  background: $white;
+  border-radius: $radius-md;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: translateY(-10px);
+  }
+}
+
+.team-image {
+  width: 100%;
+  height: 300px;
+  @include gradient-bg;
+  @include flex-center;
+  font-size: 6rem;
+}
+
+.team-info {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.team-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: $text-color;
+}
+
+.team-role {
+  color: $primary-color;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.team-bio {
+  color: $text-light;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.cta-section {
+  @include gradient-bg;
+  color: $white;
+  padding: 4rem 2rem;
+  border-radius: $radius-md;
+  text-align: center;
+
+  h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.cta-btn {
+  padding: 1.2rem 3rem;
+  background: $white;
+  color: $gradient-start;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: translateY(-3px);
+  }
+}
+
+@include tablet {
+  .story-section {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+}

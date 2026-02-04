@@ -1,0 +1,60 @@
+<div class="page-header">
+  <h1>Frequently Asked Questions</h1>
+  <p>Find answers to common questions</p>
+</div>
+
+<div class="container">
+  <!-- Search Box -->
+  <div class="search-box">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search for answers..."
+      [(ngModel)]="searchQuery">
+  </div>
+
+  <!-- Categories -->
+  <div class="faq-categories">
+    @for (category of categories; track category.id) {
+      <button
+        class="category-btn"
+        [class.active]="activeCategory === category.id"
+        (click)="setCategory(category.id)">
+        {{ category.name }}
+      </button>
+    }
+  </div>
+
+  <!-- FAQs -->
+  <div class="faq-section">
+    @if (filteredFaqs.length > 0) {
+      @for (faq of filteredFaqs; track faq.question) {
+        <div class="faq-item">
+          <div
+            class="faq-question"
+            [class.active]="faq.isOpen"
+            (click)="toggleFaq(faq)">
+            <span>{{ faq.question }}</span>
+            <span class="faq-icon">{{ faq.isOpen ? '−' : '+' }}</span>
+          </div>
+          <div class="faq-answer" [class.active]="faq.isOpen">
+            <div class="faq-answer-content">
+              {{ faq.answer }}
+            </div>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="no-results">
+        <p>No questions found matching your search.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Still Need Help -->
+  <div class="still-need-help">
+    <h2>Still Need Help?</h2>
+    <p>Can't find the answer you're looking for? Our customer support team is here to help!</p>
+    <button class="contact-btn" routerLink="/contact">Contact Us</button>
+  </div>
+</div>

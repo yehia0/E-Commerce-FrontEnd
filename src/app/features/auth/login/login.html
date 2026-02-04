@@ -1,0 +1,118 @@
+<div class="login-page">
+  <div class="login-container">
+    <!-- Left Side - Image/Branding -->
+    <div class="login-banner">
+      <div class="banner-content">
+        <h1 class="brand-logo">🛍️ Urban Style</h1>
+        <p class="brand-tagline">Your Style, Your Way</p>
+        <div class="banner-features">
+          <div class="feature">
+            <span class="feature-icon">✔</span>
+            <span>Free Shipping Over 500 EGP</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">✔</span>
+            <span>Cash on Delivery Available</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">✔</span>
+            <span>14-Day Returns</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="login-form-section">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Welcome Back</h2>
+          <p>Login to continue shopping</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Error Message -->
+          <div class="alert alert-error" *ngIf="errorMessage">
+            <span class="alert-icon">⚠️</span>
+            <span>{{ errorMessage }}</span>
+          </div>
+
+          <!-- Email Field -->
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📧</span>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                [class.error]="email?.invalid && email?.touched">
+            </div>
+            <div class="error-message" *ngIf="email?.invalid && email?.touched">
+              <span *ngIf="email?.errors?.['required']">Email is required</span>
+              <span *ngIf="email?.errors?.['email']">Please enter a valid email</span>
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                formControlName="password"
+                placeholder="Enter your password"
+                [class.error]="password?.invalid && password?.touched">
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePassword()">
+                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
+            <div class="error-message" *ngIf="password?.invalid && password?.touched">
+              <span *ngIf="password?.errors?.['required']">Password is required</span>
+              <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters</span>
+            </div>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="rememberMe">
+              <span>Remember me</span>
+            </label>
+            <a routerLink="/auth/forgot-password" class="forgot-link">
+              Forgot Password?
+            </a>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="loading">
+            <span *ngIf="!loading">Login</span>
+            <span *ngIf="loading" class="loading-spinner">
+              <span class="spinner"></span> Logging in...
+            </span>
+          </button>
+
+          <!-- Register Link -->
+          <div class="register-link">
+            Don't have an account?
+            <a routerLink="/register">Sign up</a>
+          </div>
+        </form>
+
+        <!-- Back to Home -->
+        <div class="back-home">
+          <a routerLink="/">← Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

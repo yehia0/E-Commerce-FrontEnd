@@ -1,0 +1,265 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+@import '../../../../styles.scss';
+
+.loading {
+  text-align: center;
+  padding: 4rem 2rem;
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f0f0f0;
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  p {
+    color: $text-light;
+    font-size: 1.1rem;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: $radius-md;
+
+  p {
+    color: $error-color;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: $radius-md;
+  padding: 1.5rem;
+  box-shadow: $shadow-sm;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  &.alert {
+    border-left: 4px solid $warning-color;
+  }
+}
+
+.stat-icon {
+  font-size: 3rem;
+  width: 70px;
+  height: 70px;
+  @include flex-center;
+  background: linear-gradient(135deg, $gradient-start, $gradient-end);
+  border-radius: $radius-md;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: $text-color;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  color: $text-light;
+  font-size: 0.9rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.dashboard-section {
+  background: white;
+  border-radius: $radius-md;
+  padding: 1.5rem;
+  box-shadow: $shadow-sm;
+}
+
+.section-header {
+  @include flex-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+
+  h2 {
+    font-size: 1.3rem;
+    color: $text-color;
+    margin: 0;
+  }
+}
+
+.view-all {
+  color: $primary-color;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+
+  &:hover {
+    color: darken($primary-color, 10%);
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: #f9f9f9;
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: $text-color;
+      font-size: 0.9rem;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.3s;
+
+      &:hover {
+        background: #f9f9f9;
+      }
+
+      td {
+        padding: 1rem;
+        color: $text-light;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+.badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  &.status-success {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  &.status-warning {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  &.status-info {
+    background: #d1ecf1;
+    color: #0c5460;
+  }
+
+  &.status-primary {
+    background: #cce5ff;
+    color: #004085;
+  }
+
+  &.status-danger {
+    background: #f8d7da;
+    color: #721c24;
+  }
+}
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: $radius-sm;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+}
+
+.product-image {
+  width: 50px;
+  height: 50px;
+  @include flex-center;
+  @include gradient-bg;
+  border-radius: $radius-sm;
+  font-size: 1.5rem;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-name {
+  font-weight: 600;
+  color: $text-color;
+  margin-bottom: 0.25rem;
+}
+
+.product-sales {
+  font-size: 0.85rem;
+  color: $text-light;
+}
+
+.product-revenue {
+  font-weight: bold;
+  color: $primary-color;
+  font-size: 1.1rem;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: $text-lighter;
+}
+
+@include tablet {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}

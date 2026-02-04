@@ -1,0 +1,228 @@
+<div class="container">
+  <h1 class="page-title">Track Your Order</h1>
+
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading order details...</p>
+    </div>
+  } @else if (error) {
+    <div class="error-message">
+      <p>{{ error }}</p>
+      <button class="btn-primary" routerLink="/account">Go to My Orders</button>
+    </div>
+  } @else if (order) {
+    <div class="tracking-container">
+      <!-- Order Info -->
+      <div class="order-info">
+        <div class="order-header">
+          <div class="order-id">Order #{{ order.orderId || order.orderNumber || order._id }}</div>
+          <div class="order-status" [ngClass]="'status-' + order.status">
+            {{ order.status | titlecase }}
+          </div>
+        </div>
+        <div class="order-details">
+          <div class="detail-item">
+            <span class="detail-label">Order Date</span>
+            <span class="detail-value">{{ order.createdAt | date:'MMM dd, yyyy' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Estimated Delivery</span>
+            <span class="detail-value">{{ order.estimatedDelivery | date:'MMM dd, yyyy' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Total Amount</span>
+            <span class="detail-value">{{ order.finalAmount || order.totalAmount }} EGP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking Timeline -->
+      <div class="tracking-timeline">
+        <div class="timeline-item" [ngClass]="{
+          'completed': isStatusCompleted('pending'),
+          'active': isStatusActive('pending')
+        }">
+          <div class="timeline-icon">{{ getStatusIcon('pending') }}</div>
+          <div class="timeline-line"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Order Placed</div>
+            <div class="timeline-description">Your order has been received</div>
+          </div>
+        </div>
+
+        <div class="timeline-item" [ngClass]="{
+          'completed': isStatusCompleted('confirmed'),
+          'active': isStatusActive('confirmed')
+        }">
+          <div class="timeline-icon">{{ getStatusIcon('confirmed') }}</div>
+          <div class="timeline-line"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Order Confirmed</div>
+            <div class="timeline-description">Your order has been confirmed</div>
+          </div>
+        </div>
+
+        <div class="timeline-item" [ngClass]="{
+          'completed': isStatusCompleted('preparing'),
+          'active': isStatusActive('preparing')
+        }">
+          <div class="timeline-icon">{{ getStatusIcon('preparing') }}</div>
+          <div class="timeline-line"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Preparing</div>
+            <div class="timeline-description">Being prepared for shipment</div>
+          </div>
+        </div>
+
+        <div class="timeline-item" [ngClass]="{
+          'completed': isStatusCompleted('shipped'),
+          'active': isStatusActive('shipped')
+        }">
+          <div class="timeline-icon">{{ getStatusIcon('shipped') }}</div>
+          <div class="timeline-line"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Shipped</div>
+            <div class="timeline-description">On the way to you</div>
+          </div>
+        </div>
+
+        <div class="timeline-item" [ngClass]="{
+          'completed': isStatusCompleted('delivered'),
+          'active': isStatusActive('delivered')
+        }">
+          <div class="timeline-icon">{{ getStatusIcon('delivered') }}</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Delivered</div>
+            <div class="timeline-description">Order delivered successfully</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Items Section -->
+      <div class="order-items-section">
+        <h3>Order Items</h3>
+
+        <div class="items-list">
+          <div *ngFor="let item of order.items" class="order-item">
+            <!-- Product Image -->
+            <div class="item-image">
+              <img
+                [src]="getProductImage(item)"
+                [alt]="getProductName(item)"
+                (error)="$event.target.src='assets/images/placeholder.png'"
+              />
+            </div>
+
+            <!-- Product Details -->
+            <div class="item-details">
+              <h4 class="item-name">{{ getProductName(item) }}</h4>
+
+              <!-- Variants -->
+              <div class="item-variants" *ngIf="item.size || item.color">
+                <span *ngIf="item.size" class="variant-badge">Size: {{ item.size }}</span>
+                <span *ngIf="item.color" class="variant-badge">Color: {{ item.color }}</span>
+              </div>
+
+              <!-- Price & Quantity -->
+              <div class="item-pricing">
+                <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                <span class="item-price">{{ getProductPrice(item) | number:'1.2-2' }} EGP</span>
+              </div>
+            </div>
+
+            <!-- Item Total -->
+            <div class="item-total">
+              {{ (getProductPrice(item) * item.quantity) | number:'1.2-2' }} EGP
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>{{ order.totalAmount | number:'1.2-2' }} EGP</span>
+          </div>
+          <div class="summary-row" *ngIf="order.shippingCost">
+            <span>Shipping</span>
+            <span>{{ order.shippingCost | number:'1.2-2' }} EGP</span>
+          </div>
+          <div class="summary-row" *ngIf="order.discount">
+            <span>Discount</span>
+            <span class="discount">-{{ order.discount | number:'1.2-2' }} EGP</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>{{ order.finalAmount || order.totalAmount | number:'1.2-2' }} EGP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn btn-secondary" routerLink="/contact">Contact Support</button>
+        <button class="btn btn-secondary" routerLink="/account">View All Orders</button>
+
+        @if (order.status === 'delivered') {
+          <button class="btn btn-primary" (click)="goToOrderDetails()">Write Review</button>
+        }
+
+        @if (canCancelOrder()) {
+          <button class="btn btn-danger" (click)="cancelOrder()">Cancel Order</button>
+        }
+
+        @if (canReturnOrder()) {
+          <button class="btn btn-warning" (click)="requestReturn()">Request Return</button>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ✅ Cancel Order Confirmation Modal -->
+<app-confirmation-modal
+  [config]="cancelConfirmationConfig"
+  [isVisible]="showCancelConfirmation"
+  (confirmed)="onConfirmCancel()"
+  (cancelled)="onCancelCancel()">
+</app-confirmation-modal>
+
+<!-- ✅ Return Request Custom Modal -->
+<div *ngIf="showReturnModal" class="modal-overlay" (click)="onCancelReturn()">
+  <div class="modal-content return-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Request Return</h3>
+      <button class="close-btn" (click)="onCancelReturn()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-description">
+        Please provide a detailed reason for your return request. This helps us improve our service.
+      </p>
+
+      <div class="form-group">
+        <label for="returnReason">Return Reason *</label>
+        <textarea
+          id="returnReason"
+          [(ngModel)]="returnReason"
+          placeholder="Please describe the reason for return (e.g., wrong size, damaged product, not as described...)"
+          rows="5"
+          class="form-textarea">
+        </textarea>
+        <small class="form-hint">
+          Minimum 10 characters. Be specific to help us process your request faster.
+        </small>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-cancel" (click)="onCancelReturn()">
+        Cancel
+      </button>
+      <button class="btn btn-submit" (click)="onSubmitReturn()">
+        Submit Return Request
+      </button>
+    </div>
+  </div>
+</div>

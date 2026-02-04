@@ -1,0 +1,214 @@
+<div class="register-page">
+  <div class="register-container">
+    <!-- Left Side - Form -->
+    <div class="register-form-section">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Create Account</h2>
+          <p>Join Urban Style today</p>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+          <!-- Error Message -->
+          <div class="alert alert-error" *ngIf="errorMessage">
+            <span class="alert-icon">⚠️</span>
+            <span>{{ errorMessage }}</span>
+          </div>
+
+          <!-- First Name Field -->
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input
+                type="text"
+                id="firstName"
+                formControlName="firstName"
+                placeholder="Enter your first name"
+                [class.error]="firstName?.invalid && firstName?.touched">
+            </div>
+            <div class="error-message" *ngIf="firstName?.invalid && firstName?.touched">
+              <span *ngIf="firstName?.errors?.['required']">First name is required</span>
+              <span *ngIf="firstName?.errors?.['minlength']">First name must be at least 2 characters</span>
+            </div>
+          </div>
+
+          <!-- Last Name Field -->
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input
+                type="text"
+                id="lastName"
+                formControlName="lastName"
+                placeholder="Enter your last name"
+                [class.error]="lastName?.invalid && lastName?.touched">
+            </div>
+            <div class="error-message" *ngIf="lastName?.invalid && lastName?.touched">
+              <span *ngIf="lastName?.errors?.['required']">Last name is required</span>
+              <span *ngIf="lastName?.errors?.['minlength']">Last name must be at least 2 characters</span>
+            </div>
+          </div>
+
+          <!-- Email Field -->
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📧</span>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                [class.error]="email?.invalid && email?.touched">
+            </div>
+            <div class="error-message" *ngIf="email?.invalid && email?.touched">
+              <span *ngIf="email?.errors?.['required']">Email is required</span>
+              <span *ngIf="email?.errors?.['email']">Please enter a valid email</span>
+            </div>
+          </div>
+
+          <!-- Phone Field (Optional) -->
+          <div class="form-group">
+            <label for="phone">Phone Number <span class="optional">(Optional)</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">📱</span>
+              <input
+                type="tel"
+                id="phone"
+                formControlName="phone"
+                placeholder="e.g., 01012345678">
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                formControlName="password"
+                placeholder="Create a password"
+                [class.error]="password?.invalid && password?.touched">
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePassword()">
+                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
+            <div class="error-message" *ngIf="password?.invalid && password?.touched">
+              <span *ngIf="password?.errors?.['required']">Password is required</span>
+              <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters</span>
+            </div>
+          </div>
+
+          <!-- Confirm Password Field -->
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                id="confirmPassword"
+                formControlName="confirmPassword"
+                placeholder="Confirm your password"
+                [class.error]="(confirmPassword?.invalid && confirmPassword?.touched) || (registerForm.errors?.['passwordMismatch'] && confirmPassword?.touched)">
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="toggleConfirmPassword()">
+                {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
+            <div class="error-message" *ngIf="confirmPassword?.touched">
+              <span *ngIf="confirmPassword?.errors?.['required']">Please confirm your password</span>
+              <span *ngIf="registerForm.errors?.['passwordMismatch'] && !confirmPassword?.errors?.['required']">
+                Passwords do not match
+              </span>
+            </div>
+          </div>
+
+          <!-- Terms and Conditions -->
+          <div class="form-group">
+            <label class="checkbox-label" [class.error]="agreeToTerms?.invalid && agreeToTerms?.touched">
+              <input type="checkbox" formControlName="agreeToTerms">
+              <span>
+                I agree to the <a routerLink="/terms" target="_blank">Terms & Conditions</a>
+                and <a routerLink="/privacy" target="_blank">Privacy Policy</a>
+              </span>
+            </label>
+            <div class="error-message" *ngIf="agreeToTerms?.invalid && agreeToTerms?.touched">
+              <span>You must agree to the terms and conditions</span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="loading">
+            <span *ngIf="!loading">Create Account</span>
+            <span *ngIf="loading" class="loading-spinner">
+              <span class="spinner"></span> Creating account...
+            </span>
+          </button>
+
+          <!-- Login Link -->
+          <div class="login-link">
+            Already have an account?
+            <a routerLink="/login">Login</a>
+          </div>
+        </form>
+
+        <!-- Back to Home -->
+        <div class="back-home">
+          <a routerLink="/">← Back to Home</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Image/Branding -->
+    <div class="register-banner">
+      <div class="banner-content">
+        <h1 class="brand-logo">🛍️ Urban Style</h1>
+        <p class="brand-tagline">Join Our Fashion Community</p>
+
+        <div class="banner-benefits">
+          <h3>Why Join Us?</h3>
+          <div class="benefit-item">
+            <span class="benefit-icon">🎁</span>
+            <div class="benefit-text">
+              <strong>Exclusive Offers</strong>
+              <p>Get access to member-only deals and discounts</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">🚀</span>
+            <div class="benefit-text">
+              <strong>Fast Checkout</strong>
+              <p>Save your details for quick and easy shopping</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">📦</span>
+            <div class="benefit-text">
+              <strong>Track Orders</strong>
+              <p>Keep track of all your orders in one place</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">❤️</span>
+            <div class="benefit-text">
+              <strong>Wishlist</strong>
+              <p>Save your favorite items for later</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

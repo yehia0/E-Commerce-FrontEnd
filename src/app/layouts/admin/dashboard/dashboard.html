@@ -1,0 +1,149 @@
+@if (loading) {
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Loading dashboard...</p>
+  </div>
+} @else if (error) {
+  <div class="error-message">
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadDashboard()">Retry</button>
+  </div>
+} @else if (stats) {
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ stats.totalOrders || 0 }}</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ stats.totalRevenue || 0 }} EGP</div>
+        <div class="stat-label">Total Revenue</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🛍️</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ stats.totalProducts || 0 }}</div>
+        <div class="stat-label">Total Products</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ stats.totalUsers || 0 }}</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-subtitle">{{ stats.totalCustomers || 0 }} Customers, {{ stats.totalAdmins || 0 }} Admins</div>
+      </div>
+    </div>
+
+    <div class="stat-card alert">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ stats.pendingOrders || 0 }}</div>
+        <div class="stat-label">Pending Orders</div>
+      </div>
+    </div>
+
+    <div class="stat-card alert">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ stats.lowStockProducts || 0 }}</div>
+        <div class="stat-label">Low Stock Products</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Recent Orders -->
+    <div class="dashboard-section">
+      <div class="section-header">
+        <h2>Recent Orders</h2>
+        <a routerLink="/admin/orders" class="view-all">View All →</a>
+      </div>
+
+      @if (stats.recentOrders && stats.recentOrders.length > 0) {
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of stats.recentOrders; track order._id) {
+                <tr>
+                  <td>#{{ order.orderNumber || order._id?.substring(0, 8) }}</td>
+                  <td>
+                    @if (order.user) {
+                      {{ order.user.firstName }} {{ order.user.lastName }}
+                    } @else {
+                      Unknown User
+                    }
+                  </td>
+                  <td>{{ order.createdAt | date:'MMM dd, yyyy' }}</td>
+                  <td>{{ order.finalAmount || order.total || 0 }} EGP</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusClass(order.status)">
+                      {{ order.status | titlecase }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="no-data">No recent orders</p>
+      }
+    </div>
+
+    <!-- Top Products -->
+    <div class="dashboard-section">
+      <div class="section-header">
+        <h2>Top Selling Products</h2>
+        <a routerLink="/admin/products" class="view-all">View All →</a>
+      </div>
+
+      @if (topProducts && topProducts.length > 0) {
+        <div class="products-list">
+          @for (product of topProducts; track product._id) {
+            <div class="product-item">
+              <div class="product-image">
+                @if (product.images && product.images.length > 0) {
+                  <img [src]="getProductImage(product)" [alt]="product.name" />
+                } @else {
+                  <span class="product-placeholder">🛍️</span>
+                }
+              </div>
+              <div class="product-info">
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-details">
+                  <span class="product-sales">{{ product.soldCount }} sold</span>
+                  <span class="product-price">{{ product.price }} EGP each</span>
+                </div>
+              </div>
+              <div class="product-revenue">
+                <div class="revenue-label">Total Revenue</div>
+                <div class="revenue-value">{{ product.revenue }} EGP</div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="no-data">No product sales data available yet</p>
+      }
+    </div>
+  </div>
+}

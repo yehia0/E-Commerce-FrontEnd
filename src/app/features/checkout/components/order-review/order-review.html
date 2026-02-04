@@ -1,0 +1,106 @@
+<h2 class="section-title">Review Your Order</h2>
+
+<!-- Shipping Address -->
+<div class="review-section">
+  <div class="section-header">
+    <h3>Shipping Address</h3>
+    <button class="edit-btn" (click)="onEditShipping()">Edit</button>
+  </div>
+  <div class="address-display">
+    <div><strong>{{ shippingAddress?.firstName }} {{ shippingAddress?.lastName }}</strong></div>
+    <div>{{ shippingAddress?.address }}</div>
+    <div>{{ shippingAddress?.city }}, {{ shippingAddress?.state }}</div>
+    <div>{{ shippingAddress?.phone }}</div>
+    <div>{{ shippingAddress?.email }}</div>
+  </div>
+</div>
+
+<!-- Payment Method -->
+<div class="review-section">
+  <div class="section-header">
+    <h3>Payment Method</h3>
+    <button class="edit-btn" (click)="onEditPayment()">Edit</button>
+  </div>
+  <div class="payment-display">
+    <strong>{{ getPaymentMethodName() }}</strong>
+  </div>
+</div>
+
+<!-- Order Notes -->
+<div class="review-section" *ngIf="orderNotes">
+  <div class="section-header">
+    <h3>Order Notes</h3>
+  </div>
+  <div class="notes-display">
+    {{ orderNotes }}
+  </div>
+</div>
+
+<!-- ✅ Order Items - FIXED -->
+<div class="review-section">
+  <h3>Order Items</h3>
+  <div class="items-list">
+    <div *ngFor="let item of cartItems" class="order-item">
+      <!-- ✅ Product Image - Fixed -->
+      <div class="item-image">
+        <img
+          [src]="getProductImage(item)"
+          [alt]="getProductName(item)"
+          (error)="$event.target.src='assets/images/placeholder.png'"
+        />
+      </div>
+
+      <!-- ✅ Product Details - Fixed -->
+      <div class="item-details">
+        <div class="item-name">{{ getProductName(item) }}</div>
+        <div class="item-meta">
+          <span *ngIf="item.size">{{ item.size }}</span>
+          <span *ngIf="item.size && item.color"> | </span>
+          <span *ngIf="item.color">{{ item.color }}</span>
+          <span *ngIf="item.size || item.color"> | </span>
+          <span>Qty: {{ item.quantity }}</span>
+        </div>
+      </div>
+
+      <!-- ✅ Product Price - Fixed -->
+      <div class="item-price">{{ getProductPrice(item) * item.quantity | number:'1.2-2' }} EGP</div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Summary -->
+<div class="review-section summary">
+  <h3>Order Summary</h3>
+  <div class="summary-row">
+    <span>Subtotal</span>
+    <span>{{ subtotal | number:'1.2-2' }} EGP</span>
+  </div>
+  <div class="summary-row">
+    <span>Shipping</span>
+    <span>{{ shipping === 0 ? 'Free' : (shipping | number:'1.2-2') + ' EGP' }}</span>
+  </div>
+  <div class="summary-row" *ngIf="discount > 0">
+    <span>Discount</span>
+    <span class="discount">-{{ discount | number:'1.2-2' }} EGP</span>
+  </div>
+  <div class="summary-row total">
+    <span>Total</span>
+    <span>{{ total | number:'1.2-2' }} EGP</span>
+  </div>
+</div>
+
+<button class="btn-primary" (click)="onPlaceOrder()">
+  Place Order
+</button>
+
+<div class="terms">
+  By placing your order, you agree to our Terms & Conditions
+</div>
+
+<!-- Confirmation Modal -->
+<app-confirmation-modal
+  [config]="confirmationConfig"
+  [isVisible]="showConfirmation"
+  (confirmed)="onConfirmOrder()"
+  (cancelled)="onCancelOrder()">
+</app-confirmation-modal>

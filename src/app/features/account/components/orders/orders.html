@@ -1,0 +1,65 @@
+<h2 class="section-title">My Orders</h2>
+
+<div class="filter-bar">
+  <button
+    *ngFor="let option of statusOptions"
+    class="filter-btn"
+    [class.active]="selectedStatus === option.value"
+    (click)="filterByStatus(option.value)">
+    {{ option.label }}
+  </button>
+</div>
+
+<div *ngIf="isLoading()" class="loading">Loading orders...</div>
+
+<div *ngIf="!isLoading() && hasOrders()" class="orders-list">
+  <div *ngFor="let order of filteredOrders" class="order-card">
+    <div class="order-header">
+      <div class="order-id">Order #{{ order.orderNumber || order.orderId }}</div>
+      <div class="order-status" [ngClass]="getStatusClass(order.status)">
+        {{ getStatusLabel(order.status) }}
+      </div>
+    </div>
+    <div class="order-details">
+      <div class="order-info-item">
+        <div class="info-label">Date</div>
+        <div class="info-value">{{ formatDate(order.createdAt) }}</div>
+      </div>
+      <div class="order-info-item">
+        <div class="info-label">Total</div>
+        <div class="info-value">{{ getOrderTotal(order) }} EGP</div>
+      </div>
+      <div class="order-info-item">
+        <div class="info-label">Items</div>
+        <div class="info-value">{{ getOrderItemCount(order) }} items</div>
+      </div>
+    </div>
+    <div class="order-actions">
+      <button class="btn btn-primary" (click)="viewOrderDetails(order._id)">
+        View Details
+      </button>
+      <button
+        *ngIf="canCancel(order)"
+        class="btn btn-danger"
+        (click)="cancelOrder(order._id)">
+        Cancel Order
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!isLoading() && !hasOrders()" class="empty-orders">
+  <div class="empty-icon">📦</div>
+  <h3>No orders found</h3>
+  <p *ngIf="selectedStatus === 'all'">You haven't placed any orders yet.</p>
+  <p *ngIf="selectedStatus !== 'all'">No {{ selectedStatus }} orders found.</p>
+  <button class="btn btn-primary" routerLink="/products">
+    Start Shopping
+  </button>
+</div>
+<app-confirmation-modal
+  [config]="confirmConfig"
+  [isVisible]="showConfirmModal"
+  (confirmed)="onModalConfirm()"
+  (cancelled)="onModalCancel()">
+</app-confirmation-modal>
